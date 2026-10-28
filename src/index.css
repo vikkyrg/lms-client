@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-navy: #173563;
+  --color-deep-navy: #102747;
+  --color-warm-gold: #F4D36B;
+  --color-soft-cream: #FFF2BF;
+  --color-clean-ivory: #FFFAE9;
+  --color-supporting-blue: #3F6FA8;
+  --color-slate-text: #344054;
+}
+
+:root {
+  --color-primary-navy: #173563;
+  --color-deep-navy: #102747;
+  --color-warm-gold: #F4D36B;
+  --color-soft-cream: #FFF2BF;
+  --color-clean-ivory: #FFFAE9;
+  --color-supporting-blue: #3F6FA8;
+  --color-slate-text: #344054;
+}
+
+body {
+  color: var(--color-slate-text);
+  background: #ffffff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: heroFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in-up {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
