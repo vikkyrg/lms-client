@@ -89,7 +89,11 @@ const CourseDetailsPage = () => {
       const res = await api.get(`/enrollments/check/${courseId}`);
       setIsEnrolled(res.data.isEnrolled);
     } catch (err) {
-      console.error(err);
+      if (err.response?.status === 401) {
+        setIsEnrolled(false);
+      } else {
+        console.error(err);
+      }
     }
   };
 
@@ -119,7 +123,8 @@ const CourseDetailsPage = () => {
   };
 
   const handleEnrollment = async () => {
-    if (!user) {
+    const token = localStorage.getItem('token');
+    if (!user || !token) {
       navigate(`/login?redirect=/courses/${slug}`);
       return;
     }

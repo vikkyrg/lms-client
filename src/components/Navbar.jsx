@@ -19,7 +19,6 @@ const Navbar = () => {
     { name: 'Home', path: '/' },
     { name: 'Courses', path: '/courses' },
     { name: 'About', path: '/about' },
-    { name: 'DevOps Roadmap', path: '/roadmap' },
     { name: 'Career Support', path: '/career-support' },
     { name: 'Contact', path: '/contact' },
   ];
@@ -34,11 +33,11 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
           {/* Brand Logo - using logo.png */}
-          <Link to="/" className="flex items-center shrink-0 group">
+          <Link to="/" className="flex items-center shrink-0 group py-1">
             <img
               src={logoImg}
               alt="AutoOps School — Learn. Build. Automate."
-              className="h-10 sm:h-11 w-auto object-contain transition group-hover:opacity-90"
+              className="h-14 sm:h-16 md:h-[70px] w-auto object-contain transition group-hover:opacity-90"
             />
           </Link>
 

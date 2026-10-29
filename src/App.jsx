@@ -24,6 +24,16 @@ import { AboutPage, ProjectsPage, CareerSupportPage, TestimonialsPage, FaqPage, 
 import StudentDashboardPage from './pages/StudentDashboardPage';
 import LearningPlayerPage from './pages/LearningPlayerPage';
 import {
+  StudentQuizListPage,
+  StudentQuizTakePage,
+  StudentQuizResultPage
+} from './pages/QuizPages';
+import {
+  StudentAssignmentListPage,
+  StudentAssignmentDetailPage,
+  StudentSubmissionHistoryPage
+} from './pages/AssignmentPages';
+import {
   AssessmentsPage,
   AssignmentsPage,
   CertificatesPage,
@@ -64,6 +74,16 @@ function App() {
 
           {/* Student Classroom Player */}
           <Route path="/student/courses/:courseId" element={<LearningPlayerPage />} />
+
+          {/* Student Quiz flow */}
+          <Route path="/student/courses/:courseId/quizzes" element={<StudentQuizListPage />} />
+          <Route path="/student/courses/:courseId/quizzes/:quizId" element={<StudentQuizTakePage />} />
+          <Route path="/student/courses/:courseId/quizzes/:quizId/results/:attemptId" element={<StudentQuizResultPage />} />
+
+          {/* Student Assignment & Project flow */}
+          <Route path="/student/courses/:courseId/assignments" element={<StudentAssignmentListPage />} />
+          <Route path="/student/courses/:courseId/assignments/:assignmentId" element={<StudentAssignmentDetailPage />} />
+          <Route path="/student/assignments/history" element={<StudentSubmissionHistoryPage />} />
 
           {/* Student Dashboard Portal */}
           <Route path="/student" element={<StudentLayout />}>

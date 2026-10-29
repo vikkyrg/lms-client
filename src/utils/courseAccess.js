@@ -41,4 +41,19 @@ export const curriculumSummary = (course) => {
  */
 export const PLACEHOLDER_THUMBNAIL = '/course-placeholder.svg';
 
-export const courseThumbnail = (course) => course?.thumbnail || PLACEHOLDER_THUMBNAIL;
+export const resolveThumbnailUrl = (url) => {
+  if (!url || typeof url !== 'string' || !url.trim()) return PLACEHOLDER_THUMBNAIL;
+  const trimmed = url.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:')) {
+    return trimmed;
+  }
+  const apiBase = (import.meta.env.VITE_API_URL || '/api/v1').replace(/\/api\/v1\/?$/, '');
+  if (trimmed.startsWith('/')) {
+    return `${apiBase}${trimmed}`;
+  }
+  return `${apiBase}/${trimmed}`;
+};
+
+export const courseThumbnail = (course) => {
+  return resolveThumbnailUrl(course?.thumbnail);
+};

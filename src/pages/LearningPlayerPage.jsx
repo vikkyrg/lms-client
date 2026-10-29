@@ -31,14 +31,10 @@ const LearningPlayerPage = () => {
   const [loading, setLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(null);
   const [activeTab, setActiveTab] = useState('lessons'); // lessons | materials | quizzes | assignments
-  const [selectedQuiz, setSelectedQuiz] = useState(null);
-  const [quizAnswers, setQuizAnswers] = useState({});
-  const [quizResult, setQuizResult] = useState(null);
   const [certificate, setCertificate] = useState(null);
   const [certLoading, setCertLoading] = useState(false);
   const [notice, setNotice] = useState('');
   const [busyMaterialId, setBusyMaterialId] = useState(null);
-  const [assignmentDraft, setAssignmentDraft] = useState(null);
   const mediaOrigin = (import.meta.env.VITE_API_URL || '').replace(/\/api\/v1\/?$/, '');
   const apiOrigin = mediaOrigin ? `${mediaOrigin}/api/v1` : '/api/v1';
 
@@ -89,11 +85,13 @@ const LearningPlayerPage = () => {
         setActiveLesson(allLessons[0]);
       }
 
-      // Fetch materials, quizzes & assignments in parallel
+      // Fetch materials, quizzes & assignments in parallel. The /my variants
+      // return the signed-in student's own attempt & submission status so the
+      // sidebar can show accurate classroom status labels.
       const [mRes, qRes, aRes] = await Promise.all([
         api.get(`/materials/course/${courseId}`).catch(() => ({ data: { data: [] } })),
-        api.get(`/quizzes/course/${courseId}`).catch(() => ({ data: { quizzes: [] } })),
-        api.get(`/assignments/course/${courseId}`).catch(() => ({ data: { assignments: [] } }))
+        api.get(`/quizzes/course/${courseId}/my`).catch(() => api.get(`/quizzes/course/${courseId}`).catch(() => ({ data: { quizzes: [] } }))),
+        api.get(`/assignments/course/${courseId}/my`).catch(() => api.get(`/assignments/course/${courseId}`).catch(() => ({ data: { assignments: [] } })))
       ]);
 
       setMaterials(mRes.data.data || []);
@@ -139,27 +137,39 @@ const LearningPlayerPage = () => {
     }
   };
 
-  const submitQuiz = async (quizId) => {
-    try {
-      const formattedAnswers = Object.entries(quizAnswers).map(([idx, ans]) => ({
-        questionIndex: Number(idx),
-        answer: ans
-      }));
-      const res = await api.post(`/quizzes/${quizId}/submit`, {
-        answers: formattedAnswers
-      });
-      setQuizResult(res.data);
-    } catch (err) {
-      setNotice(err.response?.data?.message || 'Error submitting quiz');
-    }
-  };
-
   const formatFileSize = (bytes) => {
     if (!bytes) return '0 B';
     const k = 1024;
     const sizes = ['B', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  };
+
+  // Classroom status label for a quiz, derived from the student's own stats.
+  const quizStatusLabel = (quiz) => {
+    const stats = quiz.stats || {};
+    if (stats.inProgressAttempt) return { label: 'In Progress', tone: 'text-sky-300 bg-sky-950/60 border-sky-800' };
+    if (stats.bestPercentage !== null && stats.bestPercentage !== undefined) {
+      return stats.bestPercentage >= quiz.passingPercentage
+        ? { label: 'Quiz Passed', tone: 'text-emerald-300 bg-emerald-950/60 border-emerald-800' }
+        : { label: 'Quiz Failed', tone: 'text-rose-300 bg-rose-950/60 border-rose-800' };
+    }
+    return { label: 'Not Started', tone: 'text-gray-400 bg-gray-800 border-gray-700' };
+  };
+
+  // Classroom status label for an assignment, derived from mySubmission.
+  const assignmentStatusLabel = (assignment) => {
+    const s = assignment.mySubmission || {};
+    const map = {
+      draft: { label: 'Draft', tone: 'text-amber-300 bg-amber-950/60 border-amber-800' },
+      submitted: { label: 'Assignment Submitted', tone: 'text-indigo-300 bg-indigo-950/60 border-indigo-800' },
+      late: { label: 'Submitted Late', tone: 'text-orange-300 bg-orange-950/60 border-orange-800' },
+      'under-review': { label: 'Under Review', tone: 'text-sky-300 bg-sky-950/60 border-sky-800' },
+      graded: { label: 'Assignment Graded', tone: 'text-emerald-300 bg-emerald-950/60 border-emerald-800' },
+      returned: { label: 'Returned for Revision', tone: 'text-rose-300 bg-rose-950/60 border-rose-800' },
+      missed: { label: 'Missed Deadline', tone: 'text-rose-300 bg-rose-950/60 border-rose-800' }
+    };
+    return map[s.displayStatus] || { label: 'Not Started', tone: 'text-gray-400 bg-gray-800 border-gray-700' };
   };
 
   if (loading) {
@@ -431,7 +441,7 @@ const LearningPlayerPage = () => {
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              PDFs ({materials.length})
+              PDFs &amp; Resources ({materials.length})
             </button>
             <button
               onClick={() => setActiveTab('quizzes')}
@@ -451,7 +461,7 @@ const LearningPlayerPage = () => {
                   : 'text-gray-400 hover:text-white'
               }`}
             >
-              Tasks ({assignments.length})
+              Assignments ({assignments.length})
             </button>
           </div>
 
@@ -460,7 +470,11 @@ const LearningPlayerPage = () => {
             {/* Curriculum Tab */}
             {activeTab === 'lessons' && (
               <div className="space-y-4">
-                {curriculum.map((mod) => (
+                {curriculum.length === 0 ? (
+                  <p className="text-xs text-gray-500 text-center py-8">No lessons have been published for this course yet.</p>
+                ) : curriculum.map((mod) => {
+                  const moduleQuizzes = quizzes.filter((q) => String(q.moduleId || '') === String(mod._id) && !q.lessonId);
+                  return (
                   <div key={mod._id} className="space-y-2">
                     <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
                       {mod.title}
@@ -469,31 +483,58 @@ const LearningPlayerPage = () => {
                       {(mod.lessons || []).map((l) => {
                         const isCompleted = enrollment?.completedLessons?.includes(l._id);
                         const isCurrent = activeLesson?._id === l._id;
+                        const lessonQuizzes = quizzes.filter((q) => String(q.lessonId || '') === String(l._id));
+                        const lessonAssignments = assignments.filter((a) => String(a.lessonId || '') === String(l._id));
                         return (
-                          <button
-                            key={l._id}
-                            onClick={() => setActiveLesson(l)}
-                            className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left text-xs transition ${
-                              isCurrent
-                                ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/50 font-bold'
-                                : 'hover:bg-gray-800 text-gray-300'
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              {isCompleted ? (
-                                <CheckCircle className="h-4 w-4 text-emerald-400 shrink-0" />
-                              ) : (
-                                <PlayCircle className="h-4 w-4 text-gray-500 shrink-0" />
-                              )}
-                              <span className="line-clamp-1">{l.title}</span>
-                            </div>
-                            <span className="text-[10px] text-gray-500 ml-2">{l.duration}m</span>
-                          </button>
+                          <div key={l._id} className="space-y-1">
+                            <button
+                              onClick={() => setActiveLesson(l)}
+                              className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left text-xs transition ${
+                                isCurrent
+                                  ? 'bg-indigo-600/30 text-indigo-300 border border-indigo-500/50 font-bold'
+                                  : 'hover:bg-gray-800 text-gray-300'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                {isCompleted ? (
+                                  <CheckCircle className="h-4 w-4 text-emerald-400 shrink-0" />
+                                ) : (
+                                  <PlayCircle className="h-4 w-4 text-gray-500 shrink-0" />
+                                )}
+                                <span className="line-clamp-1">{l.title}</span>
+                              </div>
+                              <span className="text-[10px] text-gray-500 ml-2">{l.duration}m</span>
+                            </button>
+                            {(lessonQuizzes.length > 0 || lessonAssignments.length > 0) && (
+                              <div className="flex flex-wrap gap-1 pl-6">
+                                {lessonQuizzes.map((q) => (
+                                  <Link key={q._id} to={`/student/courses/${courseId}/quizzes/${q._id}`} className="inline-flex items-center gap-1 rounded-md bg-gray-800/70 hover:bg-gray-700 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-300">
+                                    <HelpCircle className="h-3 w-3" /> Quiz
+                                  </Link>
+                                ))}
+                                {lessonAssignments.map((a) => (
+                                  <Link key={a._id} to={`/student/courses/${courseId}/assignments/${a._id}`} className="inline-flex items-center gap-1 rounded-md bg-gray-800/70 hover:bg-gray-700 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-300">
+                                    <BookOpen className="h-3 w-3" /> {a.isProject ? 'Project' : 'Assignment'}
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         );
                       })}
+                      {moduleQuizzes.length > 0 && (
+                        <div className="flex flex-wrap gap-1 pl-2 pt-1">
+                          {moduleQuizzes.map((q) => (
+                            <Link key={q._id} to={`/student/courses/${courseId}/quizzes/${q._id}`} className="inline-flex items-center gap-1 rounded-md bg-indigo-950/50 hover:bg-indigo-900/60 px-1.5 py-0.5 text-[10px] font-semibold text-indigo-300 border border-indigo-900/50">
+                              <HelpCircle className="h-3 w-3" /> Module quiz: {q.title}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -555,162 +596,92 @@ const LearningPlayerPage = () => {
 
             {/* Quizzes Tab */}
             {activeTab === 'quizzes' && (
-              <div className="space-y-4">
+              <div className="space-y-3">
+                {quizzes.length > 0 && (
+                  <Link to={`/student/courses/${courseId}/quizzes`} className="block rounded-lg bg-indigo-950/50 border border-indigo-900/60 px-3 py-2 text-[11px] font-bold text-indigo-300 hover:bg-indigo-900/60 text-center">
+                    View all quizzes →
+                  </Link>
+                )}
                 {quizzes.length === 0 ? (
-                  <p className="text-xs text-gray-500 text-center py-8">No quizzes for this course yet.</p>
-                ) : selectedQuiz ? (
-                  <div className="bg-gray-800 p-4 rounded-xl space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h4 className="font-bold text-sm text-white">{selectedQuiz.title}</h4>
-                      <button
-                        onClick={() => {
-                          setSelectedQuiz(null);
-                          setQuizResult(null);
-                        }}
-                        className="text-xs text-indigo-400 hover:underline"
-                      >
-                        Back to list
-                      </button>
-                    </div>
-
-                    {quizResult ? (
-                      <div className="space-y-3 p-4 bg-gray-900 rounded-lg">
-                        <p className={`font-bold text-sm ${quizResult.passed ? 'text-emerald-400' : 'text-red-400'}`}>
-                          {quizResult.passed ? 'Passed 🎉' : 'Failed - Try again!'}
-                        </p>
-                        <p className="text-xs text-gray-300">
-                          Score: {quizResult.score} / {quizResult.totalScore} ({quizResult.percentage}%)
-                        </p>
-                        <button
-                          onClick={() => {
-                            setQuizResult(null);
-                            setQuizAnswers({});
-                          }}
-                          className="w-full text-xs font-bold py-2 bg-indigo-600 rounded-lg"
-                        >
-                          Retake Quiz
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="space-y-4">
-                        {selectedQuiz.questions?.map((q, idx) => (
-                          <div key={idx} className="space-y-2 text-xs">
-                            <p className="font-semibold text-gray-200">
-                              {idx + 1}. {q.questionText}
-                            </p>
-                            <div className="space-y-1">
-                              {q.options?.map((opt, oIdx) => (
-                                <label
-                                  key={oIdx}
-                                  className="flex items-center gap-2 p-2 bg-gray-900 rounded-lg cursor-pointer hover:bg-gray-700/50"
-                                >
-                                  <input
-                                    type="radio"
-                                    name={`q_${idx}`}
-                                    value={opt}
-                                    checked={quizAnswers[idx] === opt}
-                                    onChange={() => setQuizAnswers({ ...quizAnswers, [idx]: opt })}
-                                    className="text-indigo-600"
-                                  />
-                                  <span>{opt}</span>
-                                </label>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-
-                        <button
-                          onClick={() => submitQuiz(selectedQuiz._id)}
-                          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-lg text-xs transition"
-                        >
-                          Submit Quiz
-                        </button>
-                      </div>
-                    )}
+                  <div className="text-center py-10 space-y-2">
+                    <HelpCircle className="h-8 w-8 text-gray-600 mx-auto" />
+                    <p className="text-xs text-gray-400">No quizzes have been published for this course yet.</p>
                   </div>
                 ) : (
-                  quizzes.map((quiz) => (
-                    <div key={quiz._id} className="bg-gray-800 p-4 rounded-xl space-y-2 border border-gray-700">
-                      <h4 className="font-bold text-xs text-white">{quiz.title}</h4>
-                      <p className="text-[11px] text-gray-400">
-                        {quiz.questions?.length || 0} Questions • Passing: {quiz.passingPercentage}%
-                      </p>
-                      <button
-                        onClick={async () => {
-                          const res = await api.get(`/quizzes/${quiz._id}`);
-                          setSelectedQuiz(res.data.quiz);
-                        }}
-                        className="w-full mt-2 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-lg transition"
-                      >
-                        Start Quiz
-                      </button>
-                    </div>
-                  ))
+                  quizzes.map((quiz) => {
+                    const status = quizStatusLabel(quiz);
+                    const stats = quiz.stats || {};
+                    return (
+                      <div key={quiz._id} className="bg-gray-800 p-4 rounded-xl space-y-2 border border-gray-700">
+                        <div className="flex items-start justify-between gap-2">
+                          <h4 className="font-bold text-xs text-white">{quiz.title}</h4>
+                          <span className={`shrink-0 text-[10px] font-bold border px-2 py-0.5 rounded-full ${status.tone}`}>{status.label}</span>
+                        </div>
+                        <p className="text-[11px] text-gray-400">{quiz.moduleTitle || 'Whole course'}{quiz.lessonTitle ? ` · ${quiz.lessonTitle}` : ''}</p>
+                        <p className="text-[11px] text-gray-400">
+                          {quiz.questions?.length || 0} Questions • Passing: {quiz.passingPercentage}% • {quiz.feedbackMode === 'immediate' ? 'Practice' : 'Assessment'}
+                        </p>
+                        <div className="flex gap-2 pt-1">
+                          <Link
+                            to={`/student/courses/${courseId}/quizzes/${quiz._id}`}
+                            className={`flex-1 text-center py-1.5 rounded-lg text-xs font-bold transition ${stats.canStart ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-gray-700 text-gray-500 pointer-events-none'}`}
+                          >
+                            {stats.inProgressAttempt ? 'Resume quiz' : stats.attemptsUsed > 0 ? (stats.canStart ? 'Retry quiz' : 'No attempts left') : 'Start quiz'}
+                          </Link>
+                          {stats.latestAttempt && (
+                            <Link to={`/student/courses/${courseId}/quizzes/${quiz._id}/results/${stats.latestAttempt._id}`} className="py-1.5 px-3 rounded-lg text-xs font-bold bg-gray-700 hover:bg-gray-600 text-gray-200">
+                              Result
+                            </Link>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
                 )}
               </div>
             )}
 
-            {/* Assignments Tab */}
+            {/* Assignments & Projects Tab */}
             {activeTab === 'assignments' && (
-              <div className="space-y-4">
+              <div className="space-y-3">
+                {assignments.length > 0 && (
+                  <div className="flex gap-2">
+                    <Link to={`/student/courses/${courseId}/assignments`} className="flex-1 rounded-lg bg-indigo-950/50 border border-indigo-900/60 px-3 py-2 text-[11px] font-bold text-indigo-300 hover:bg-indigo-900/60 text-center">
+                      View all assignments →
+                    </Link>
+                    <Link to="/student/assignments/history" className="rounded-lg bg-gray-800 border border-gray-700 px-3 py-2 text-[11px] font-bold text-gray-300 hover:bg-gray-700">
+                      History
+                    </Link>
+                  </div>
+                )}
                 {assignments.length === 0 ? (
-                  <p className="text-xs text-gray-500 text-center py-8">No assignments for this course.</p>
+                  <div className="text-center py-10 space-y-2">
+                    <BookOpen className="h-8 w-8 text-gray-600 mx-auto" />
+                    <p className="text-xs text-gray-400">No assignments or projects have been published for this course yet.</p>
+                  </div>
                 ) : (
-                  assignments.map((ass) => (
-                    <div key={ass._id} className="bg-gray-800 p-4 rounded-xl space-y-3 border border-gray-700">
-                      <div className="flex justify-between items-start">
-                        <h4 className="font-bold text-xs text-white">{ass.title}</h4>
-                        <span className="text-[10px] bg-indigo-900/60 text-indigo-300 px-2 py-0.5 rounded">
-                          {ass.totalMarks} Marks
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-300 leading-relaxed">{ass.instructions}</p>
-                      <button
-                        onClick={() => setAssignmentDraft({ id: ass._id, text: '' })}
-                        className="w-full py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition"
-                      >
-                        Submit Assignment
-                      </button>
-                      {assignmentDraft?.id === ass._id && (
-                        <form
-                          className="space-y-2"
-                          onSubmit={async (event) => {
-                            event.preventDefault();
-                            try {
-                              await api.post(`/assignments/${ass._id}/submit`, { submissionText: assignmentDraft.text });
-                              setAssignmentDraft(null);
-                              setNotice('Assignment submitted for grading.');
-                            } catch (err) {
-                              setNotice(err.response?.data?.message || 'Unable to submit assignment');
-                            }
-                          }}
+                  assignments.map((ass) => {
+                    const status = assignmentStatusLabel(ass);
+                    return (
+                      <div key={ass._id} className="bg-gray-800 p-4 rounded-xl space-y-2 border border-gray-700">
+                        <div className="flex items-start justify-between gap-2">
+                          <h4 className="font-bold text-xs text-white">{ass.title}</h4>
+                          <span className={`shrink-0 text-[10px] font-bold border px-2 py-0.5 rounded-full ${status.tone}`}>{status.label}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-[10px] text-gray-400">
+                          {ass.isProject && <span className="bg-purple-900/50 text-purple-300 px-1.5 py-0.5 rounded font-bold">Project</span>}
+                          <span>{ass.moduleTitle || 'Whole course'}{ass.lessonTitle ? ` · ${ass.lessonTitle}` : ''}</span>
+                        </div>
+                        <p className="text-[11px] text-gray-400">Due {ass.dueDate ? new Date(ass.dueDate).toLocaleDateString() : '—'} • {ass.totalMarks} marks</p>
+                        <Link
+                          to={`/student/courses/${courseId}/assignments/${ass._id}`}
+                          className="block w-full text-center py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition"
                         >
-                          <label className="block text-xs font-semibold text-gray-300">
-                            Submission text or project URL
-                            <textarea
-                              required
-                              rows="3"
-                              value={assignmentDraft.text}
-                              onChange={(event) => setAssignmentDraft({ ...assignmentDraft, text: event.target.value })}
-                              className="mt-1 w-full rounded-lg border border-gray-600 bg-gray-900 p-2 text-xs text-white"
-                            />
-                          </label>
-                          <div className="flex gap-2">
-                            <button className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-bold">
-                              Send for grading
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setAssignmentDraft(null)}
-                              className="rounded-lg border border-gray-600 px-3 py-1.5 text-xs"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </form>
-                      )}
-                    </div>
-                  ))
+                          {ass.mySubmission?.hasSubmission ? 'View submission' : 'Open & submit'}
+                        </Link>
+                      </div>
+                    );
+                  })
                 )}
               </div>
             )}

@@ -10,6 +10,9 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -24,6 +27,8 @@ api.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      // Dispatch custom event so AuthContext immediately clears user state
+      window.dispatchEvent(new Event('auth:unauthorized'));
       if (!window.location.pathname.includes('/login') && !window.location.pathname.includes('/courses')) {
         window.location.href = '/login';
       }
