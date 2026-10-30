@@ -15,11 +15,32 @@ const Navbar = () => {
     navigate('/');
   };
 
+  const handleNavClick = (e, path) => {
+    e.preventDefault();
+    if (location.pathname === path) {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth',
+      });
+    } else {
+      navigate(path);
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth',
+      });
+    }
+  };
+
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Courses', path: '/courses' },
+    { name: 'Projects', path: '/projects' },
     { name: 'About', path: '/about' },
+    { name: 'Testimonials', path: '/testimonials' },
     { name: 'Career Support', path: '/career-support' },
+    { name: 'FAQ', path: '/faq' },
     { name: 'Contact', path: '/contact' },
   ];
 
@@ -33,7 +54,11 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
           {/* Brand Logo - using logo.png */}
-          <Link to="/" className="flex items-center shrink-0 group py-1">
+          <Link
+            to="/"
+            onClick={(e) => handleNavClick(e, '/')}
+            className="flex items-center shrink-0 group py-1"
+          >
             <img
               src={logoImg}
               alt="AutoOps School — Learn. Build. Automate."
@@ -42,13 +67,14 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Nav Links */}
-          <div className="hidden lg:flex items-center gap-7">
+          <div className="hidden lg:flex items-center gap-5 xl:gap-7">
             {navLinks.map((link) => {
               const active = isActive(link.path);
               return (
                 <Link
                   key={link.name}
                   to={link.path}
+                  onClick={(e) => handleNavClick(e, link.path)}
                   className={`relative text-sm font-semibold transition py-1 ${
                     active
                       ? 'text-[#173563] font-bold'
@@ -141,7 +167,10 @@ const Navbar = () => {
             <Link
               key={link.name}
               to={link.path}
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={(e) => {
+                setMobileMenuOpen(false);
+                handleNavClick(e, link.path);
+              }}
               className={`block px-3 py-2.5 rounded-xl text-sm font-semibold transition ${
                 isActive(link.path)
                   ? 'bg-[#FFFAE9] text-[#173563] font-bold border-l-4 border-[#F4D36B]'

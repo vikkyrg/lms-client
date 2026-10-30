@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import CourseCard from '../components/CourseCard';
+import StudentTestimonials from '../components/StudentTestimonials';
+import StudentVideoTestimonials from '../components/StudentVideoTestimonials';
 import bgHero from '../assests/bg.png';
 import bgmHero from '../assests/bgm.png';
+import whyLearnImg from '../assests/why-learn.jpg';
 import {
   GraduationCap,
   Search,
@@ -18,7 +21,8 @@ import {
   Rocket,
   BarChart3,
   Cog,
-  InfinityIcon
+  InfinityIcon,
+  CheckCircle2
 } from 'lucide-react';
 
 const HomePage = () => {
@@ -70,6 +74,33 @@ const HomePage = () => {
           <path d="M12 2c-3.1 0-5.8 1.4-6.8 3.5h3.6c2.7 0 4.9 2.2 4.9 4.9v1.2h2.5c2.7 0 4.9-2.2 4.9-4.9C21.1 4.2 17 2 12 2zm-1.8 2.5c.7 0 1.2.5 1.2 1.2 0 .7-.5 1.2-1.2 1.2-.7 0-1.2-.5-1.2-1.2 0-.7.5-1.2 1.2-1.2zM2.9 12.4c0 2.7 2.2 4.9 4.9 4.9h2.5v-1.2c0-2.7 2.2-4.9 4.9-4.9h3.6C17.8 9.1 15.1 7.7 12 7.7c-5 0-9.1 2.2-9.1 4.7zm8.3 6.7c-.7 0-1.2-.5-1.2-1.2 0-.7.5-1.2 1.2-1.2.7 0 1.2.5 1.2 1.2 0 .7-.5 1.2-1.2 1.2zM12 22c3.1 0 5.8-1.4 6.8-3.5h-3.6c-2.7 0-4.9-2.2-4.9-4.9v-1.2H7.8c-2.7 0-4.9 2.2-4.9 4.9 0 2.5 4.1 4.7 9.1 4.7z" />
         </svg>
       ),
+    },
+  ];
+
+  const whyLearnFeatures = [
+    {
+      title: 'Industry-Ready Curriculum',
+      description: 'Learn skills aligned with real-world industry requirements.',
+    },
+    {
+      title: 'Hands-On Practical Training',
+      description: 'Apply your knowledge through practical exercises and projects.',
+    },
+    {
+      title: 'Expert Instructor Guidance',
+      description: 'Get guidance and support from experienced industry professionals.',
+    },
+    {
+      title: 'Learn at Your Own Pace',
+      description: 'Access structured learning materials and progress at your convenience.',
+    },
+    {
+      title: 'Real-World Project Experience',
+      description: 'Build practical projects to strengthen your portfolio and technical skills.',
+    },
+    {
+      title: 'Career-Focused Learning',
+      description: 'Develop the confidence and knowledge needed for your next career opportunity.',
     },
   ];
 
@@ -318,6 +349,76 @@ const HomePage = () => {
       </section>
 
       {/* ========================================================================= */}
+      {/* WHY LEARN WITH US SECTION                                                 */}
+      {/* Official AutoOps School Brand Styling: Navy, Gold, Cream, Slate            */}
+      {/* ========================================================================= */}
+      <section className="bg-white py-14 sm:py-16 lg:py-20 border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+            {/* Left Column: Learners Image (4:3 aspect ratio, rounded-2xl, natural shadow) */}
+            <div className="lg:col-span-6 w-full">
+              <div className="relative overflow-hidden rounded-[20px] shadow-[0_10px_30px_rgba(16,39,71,0.08)] border border-gray-100">
+                <img
+                  src={whyLearnImg}
+                  alt="AutoOps School Learners collaborating in modern technology training environment"
+                  className="w-full aspect-[4/3] object-cover block"
+                  loading="lazy"
+                />
+              </div>
+            </div>
+
+            {/* Right Column: Content */}
+            <div className="lg:col-span-6 space-y-5 text-left">
+              {/* Section Badge: Soft Cream (#FFF2BF) with Deep Navy (#102747) text */}
+              <div>
+                <span className="inline-block bg-[#FFF2BF] text-[#102747] border border-[#F4D36B]/60 text-xs font-bold px-3.5 py-1 rounded-full tracking-wide shadow-2xs">
+                  Why Learn With Us
+                </span>
+              </div>
+
+              {/* Main Heading: Primary Navy (#173563) with Warm Gold (#F4D36B / #C99718) highlight */}
+              <h2 className="text-2xl sm:text-3xl lg:text-[2.35rem] font-extrabold text-[#173563] tracking-tight leading-[1.2]">
+                Learn In-Demand Skills. Build <span className="text-[#C99718] font-black">Real-World Expertise.</span>
+              </h2>
+
+              {/* Description: Slate Text (#344054) */}
+              <p className="text-[#344054] text-sm sm:text-[15px] leading-relaxed font-normal">
+                Our industry-focused training programs combine expert guidance, practical projects, and structured learning to help you master the skills that matter. Learn at your own pace, gain hands-on experience, and build the confidence to succeed in your tech career.
+              </p>
+
+              {/* 6 Features in 2-column grid on desktop/tablet, 1-col on mobile */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 pt-1">
+                {whyLearnFeatures.map((feature, idx) => (
+                  <div key={idx} className="flex items-start gap-2.5">
+                    <CheckCircle2 className="w-5 h-5 text-[#173563] shrink-0 stroke-[2.2] mt-0.5" />
+                    <div>
+                      <h4 className="text-sm sm:text-[14.5px] font-bold text-[#173563] leading-snug">
+                        {feature.title}
+                      </h4>
+                      <p className="text-xs sm:text-[13px] text-[#344054] leading-relaxed mt-0.5">
+                        {feature.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* CTA Button: Primary Navy (#173563), Warm Gold (#F4D36B) arrow, Deep Navy hover (#102747) */}
+              <div className="pt-2">
+                <Link
+                  to="/courses"
+                  className="inline-flex items-center justify-center gap-2.5 bg-[#173563] hover:bg-[#102747] text-white font-semibold text-sm sm:text-[15px] px-6 py-3 rounded-xl shadow-xs hover:shadow-md transition-all duration-200 group cursor-pointer"
+                >
+                  <span>Explore Our Courses</span>
+                  <ArrowRight className="w-4 h-4 text-[#F4D36B] transition-transform group-hover:translate-x-1 stroke-[2.2]" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
       {/* FEATURED COURSES SECTION                                                 */}
       {/* "Explore Popular Courses" with "View All Courses ->" top right link       */}
       {/* Real dynamic courses loaded from backend API                             */}
@@ -457,6 +558,18 @@ const HomePage = () => {
       </section>
 
       {/* ========================================================================= */}
+      {/* DYNAMIC STUDENT TESTIMONIALS SECTION                                     */}
+      {/* Placed immediately after "Why Choose AutoOps School"                     */}
+      {/* ========================================================================= */}
+      <StudentTestimonials />
+
+      {/* ========================================================================= */}
+      {/* DYNAMIC STUDENT VIDEO TESTIMONIALS SECTION                               */}
+      {/* Placed immediately after Student Testimonials                            */}
+      {/* ========================================================================= */}
+      <StudentVideoTestimonials />
+
+      {/* ========================================================================= */}
       {/* CALL TO ACTION SECTION                                                   */}
       {/* Dark navy banner matching reference with yellow CTA button & graphic      */}
       {/* ========================================================================= */}
@@ -483,11 +596,11 @@ const HomePage = () => {
             </div>
 
             <div className="lg:col-span-5 flex justify-center lg:justify-end">
-              <div className="relative max-w-xs sm:max-w-sm">
+              <div className="relative w-full max-w-sm sm:max-w-md lg:max-w-lg">
                 <img
                   src="/cta-graphic.png"
-                  alt="AutoOps School Laptop Learning"
-                  className="w-full h-auto object-contain drop-shadow-2xl"
+                  alt="AutoOps School DevOps & IT Skills Platform"
+                  className="w-full h-auto object-contain rounded-2xl drop-shadow-2xl transition-transform duration-300 hover:scale-[1.02]"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}

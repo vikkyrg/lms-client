@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
+import ScrollToTop from './components/ScrollToTop';
 
 // Layouts
 import MainLayout from './layouts/MainLayout';
@@ -18,7 +19,11 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import PaymentResultPage from './pages/PaymentResultPage';
-import { AboutPage, ProjectsPage, CareerSupportPage, TestimonialsPage, FaqPage, LegalPage } from './pages/MarketingPages';
+import { AboutPage, CareerSupportPage, LegalPage } from './pages/MarketingPages';
+import TestimonialsPage from './pages/TestimonialsPage';
+import FaqPage from './pages/FaqPage';
+import ProjectsPage from './pages/ProjectsPage';
+import ProjectDetailsPage from './pages/ProjectDetailsPage';
 
 // Student Protected Pages
 import StudentDashboardPage from './pages/StudentDashboardPage';
@@ -45,6 +50,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           {/* Public Website */}
           <Route path="/" element={<MainLayout />}>
@@ -65,9 +71,11 @@ function App() {
                 dynamic DevOps catalog filter instead of a fixed course slug. */}
             <Route path="roadmap" element={<Navigate to="/courses?category=devops" replace />} />
             <Route path="projects" element={<ProjectsPage />} />
+            <Route path="projects/:slug" element={<ProjectDetailsPage />} />
             <Route path="career-support" element={<CareerSupportPage />} />
             <Route path="testimonials" element={<TestimonialsPage />} />
-            <Route path="faqs" element={<FaqPage />} />
+            <Route path="faq" element={<FaqPage />} />
+            <Route path="faqs" element={<Navigate to="/faq" replace />} />
             <Route path="privacy-policy" element={<LegalPage type="privacy" />} />
             <Route path="terms" element={<LegalPage type="terms" />} />
           </Route>
