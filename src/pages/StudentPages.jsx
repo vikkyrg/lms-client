@@ -12,75 +12,85 @@ const Panel = ({ title, children }) => (
 
 const Empty = ({ children }) => <p className="py-10 text-center text-sm text-gray-500">{children}</p>;
 
-export const AssessmentsPage = () => {
-  const [attempts, setAttempts] = useState([]);
-  const [error, setError] = useState('');
-  useEffect(() => {
-    api.get('/quizzes/attempts/my').then(res => setAttempts(res.data.attempts || []))
-      .catch(err => setError(err.response?.data?.message || 'Unable to load assessment history'));
-  }, []);
-  return <Panel title="My Assessments">
-    {error && <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-    {attempts.length === 0 ? <Empty>No quiz attempts yet. Start a quiz from one of your classrooms.</Empty> : (
-      <div className="overflow-x-auto"><table className="w-full min-w-[560px] text-left text-sm">
-        <thead className="border-b text-xs uppercase text-gray-500"><tr><th className="p-3">Quiz</th><th className="p-3">Course</th><th className="p-3">Score</th><th className="p-3">Result</th><th className="p-3">Date</th></tr></thead>
-        <tbody className="divide-y">{attempts.map(item => <tr key={item._id}>
-          <td className="p-3 font-semibold">{item.quizId?.title || 'Quiz'}</td>
-          <td className="p-3 text-gray-600">{item.courseId?.title || 'Course'}</td>
-          <td className="p-3">{item.score}/{item.totalScore} ({item.percentage}%)</td>
-          <td className={`p-3 font-semibold ${item.passed ? 'text-emerald-600' : 'text-red-600'}`}>{item.passed ? 'Passed' : 'Not passed'}</td>
-          <td className="p-3 text-gray-500">{new Date(item.createdAt).toLocaleDateString()}</td>
-        </tr>)}</tbody>
-      </table></div>
-    )}
-  </Panel>;
-};
-
-export const AssignmentsPage = () => {
-  const [submissions, setSubmissions] = useState([]);
-  const [error, setError] = useState('');
-  useEffect(() => {
-    api.get('/assignments/submissions/my').then(res => setSubmissions(res.data.submissions || []))
-      .catch(err => setError(err.response?.data?.message || 'Unable to load assignments'));
-  }, []);
-  return <Panel title="My Assignments">
-    {error && <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-    {submissions.length === 0 ? <Empty>No submissions yet. Assignment work appears here after you submit it from a classroom.</Empty> : (
-      <div className="space-y-3">{submissions.map(item => <article key={item._id} className="rounded-xl border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div><h2 className="font-bold">{item.assignmentId?.title || 'Assignment'}</h2><p className="text-sm text-gray-500">{item.courseId?.title || 'Course'} · Submitted {new Date(item.createdAt).toLocaleDateString()}</p></div>
-        <div className="text-sm sm:text-right"><p className="font-semibold capitalize">{item.status.replace('_', ' ')}</p>{item.marksObtained !== undefined && <p className="text-gray-500">{item.marksObtained}/{item.assignmentId?.totalMarks || 0} marks</p>}{item.feedback && <p className="text-gray-600">{item.feedback}</p>}</div>
-      </article>)}</div>
-    )}
-  </Panel>;
-};
-
 export const CertificatesPage = () => {
   const [certificates, setCertificates] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [downloadingId, setDownloadingId] = useState(null);
+
   useEffect(() => {
-    api.get('/certificates/my').then(res => setCertificates(res.data.certificates || []))
-      .catch(err => setError(err.response?.data?.message || 'Unable to load certificates'));
+    api.get('/certificates/my')
+      .then(res => setCertificates(res.data.certificates || []))
+      .catch(err => setError(err.response?.data?.message || 'Unable to load certificates'))
+      .finally(() => setLoading(false));
   }, []);
+
   const download = async cert => {
-    const response = await api.get(`/certificates/${cert._id}/download`, { responseType: 'blob' });
-    const url = URL.createObjectURL(response.data);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = `${cert.certificateNumber}.pdf`;
-    anchor.click();
-    URL.revokeObjectURL(url);
+    try {
+      setDownloadingId(cert._id);
+      const response = await api.get(`/certificates/${cert._id}/download`, { responseType: 'blob' });
+      const url = URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `${cert.certificateNumber}.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Failed to download certificate:', err);
+    } finally {
+      setDownloadingId(null);
+    }
   };
+
   return <Panel title="My Certificates">
-    {error && <p className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
-    {certificates.length === 0 ? <Empty>Complete an enrolled course to earn a verified certificate.</Empty> : <div className="grid gap-4 md:grid-cols-2">
-      {certificates.map(cert => <article key={cert._id} className="rounded-xl border p-5">
-        <p className="text-xs font-bold uppercase tracking-wide text-indigo-600">Verified credential</p>
-        <h2 className="mt-2 font-bold text-gray-900">{cert.courseId?.title}</h2>
-        <p className="mt-1 text-sm text-gray-500">{cert.certificateNumber}</p>
-        <p className="mt-1 text-xs text-gray-500">Issued {new Date(cert.issueDate).toLocaleDateString()}</p>
-        <div className="mt-4 flex flex-wrap gap-2"><button onClick={() => download(cert)} className="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-bold text-white">Download PDF</button><Link className="rounded-lg border px-3 py-2 text-xs font-bold text-indigo-700" to={`/verify-certificate/${cert.certificateNumber}`}>Verify publicly</Link></div>
-      </article>)}
-    </div>}
+    {error && <p className="mb-4 rounded-xl bg-red-50 p-3.5 text-xs font-semibold text-red-700 border border-red-200">{error}</p>}
+    {loading ? (
+      <div className="py-12 text-center text-xs text-gray-400">Loading your verified certificates...</div>
+    ) : certificates.length === 0 ? (
+      <Empty>Complete an enrolled course to earn a verified certificate.</Empty>
+    ) : (
+      <div className="grid gap-5 md:grid-cols-2">
+        {certificates.map(cert => (
+          <article key={cert._id} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-xs flex flex-col justify-between hover:shadow-md transition">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Verified Credential
+                </span>
+                <span className="text-[11px] font-mono text-gray-400">AutoOps School</span>
+              </div>
+              <h2 className="text-base font-extrabold text-[#102747] leading-snug pt-1">
+                {cert.courseId?.title}
+              </h2>
+              <div className="text-xs text-gray-500 space-y-0.5 pt-1">
+                <p>Serial: <code className="font-mono font-bold text-gray-700">{cert.certificateNumber}</code></p>
+                <p>Issued: {new Date(cert.issueDate).toLocaleDateString('en-US', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+              </div>
+            </div>
+            <div className="mt-5 pt-4 border-t border-gray-100 flex flex-wrap gap-2.5">
+              <button
+                type="button"
+                onClick={() => download(cert)}
+                disabled={downloadingId === cert._id}
+                className="rounded-xl bg-[#173563] hover:bg-[#102747] px-3.5 py-2 text-xs font-bold text-white shadow-2xs transition cursor-pointer disabled:opacity-50"
+              >
+                {downloadingId === cert._id ? 'Generating...' : 'Download PDF'}
+              </button>
+              <Link
+                className="rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 px-3.5 py-2 text-xs font-bold text-[#102747] transition"
+                to={`/verify-certificate/${cert.certificateNumber}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Verify Publicly
+              </Link>
+            </div>
+          </article>
+        ))}
+      </div>
+    )}
   </Panel>;
 };
 

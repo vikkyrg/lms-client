@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { User, Lock, Mail, ArrowRight, GraduationCap } from 'lucide-react';
+import { User, Lock, Mail, Phone, Eye, EyeOff, ArrowRight, GraduationCap } from 'lucide-react';
 
 const RegisterPage = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -17,16 +21,54 @@ const RegisterPage = () => {
   const queryParams = new URLSearchParams(location.search);
   const redirect = queryParams.get('redirect') || '/student/dashboard';
 
+  const validatePhone = (num) => {
+    return /^[\d\s+\-()]{7,20}$/.test(num.trim());
+  };
+
+  const validateEmail = (mail) => {
+    return /^\S+@\S+\.\S+$/.test(mail.trim());
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    if (!name.trim()) {
+      setError('Please enter your full name.');
+      return;
+    }
+
+    if (!validateEmail(email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
+    if (!validatePhone(phone)) {
+      setError('Please enter a valid contact phone number.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must contain at least 6 characters.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('Confirm Password does not match Password.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await register(name, email, password);
+      await register(name.trim(), email.trim(), phone.trim(), password);
       navigate(redirect);
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      if (!err.response) {
+        setError('Cannot connect to server. Please verify the backend service is running.');
+      } else {
+        setError(err.response?.data?.message || 'Registration failed');
+      }
     } finally {
       setLoading(false);
     }
@@ -48,7 +90,7 @@ const RegisterPage = () => {
             Create an Account
           </h1>
           <p className="text-xs sm:text-sm text-gray-500">
-            Sign up to enroll in courses, access materials, and submit projects
+            Sign up to enroll in courses, track progress, and learn practical IT skills
           </p>
         </div>
 
@@ -61,7 +103,7 @@ const RegisterPage = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-[#102747] uppercase tracking-wider mb-1.5">
-              Full Name
+              Full Name <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
               <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -78,7 +120,7 @@ const RegisterPage = () => {
 
           <div>
             <label className="block text-xs font-bold text-[#102747] uppercase tracking-wider mb-1.5">
-              Email Address
+              Email Address <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
               <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -95,19 +137,70 @@ const RegisterPage = () => {
 
           <div>
             <label className="block text-xs font-bold text-[#102747] uppercase tracking-wider mb-1.5">
-              Password (Min. 6 Characters)
+              Phone Number <span className="text-rose-500">*</span>
+            </label>
+            <div className="relative">
+              <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="tel"
+                required
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+91 98765 43210"
+                className="w-full pl-10 pr-3 py-2.5 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#173563]/10 focus:border-[#173563] transition"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-[#102747] uppercase tracking-wider mb-1.5">
+              Password (Min. 6 Characters) <span className="text-rose-500">*</span>
             </label>
             <div className="relative">
               <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-3 py-2.5 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#173563]/10 focus:border-[#173563] transition"
+                className="w-full pl-10 pr-10 py-2.5 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#173563]/10 focus:border-[#173563] transition"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-[#102747] uppercase tracking-wider mb-1.5">
+              Confirm Password <span className="text-rose-500">*</span>
+            </label>
+            <div className="relative">
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                required
+                minLength={6}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="••••••••"
+                className="w-full pl-10 pr-10 py-2.5 text-sm bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#173563]/10 focus:border-[#173563] transition"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer"
+                aria-label="Toggle confirm password visibility"
+              >
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
             </div>
           </div>
 

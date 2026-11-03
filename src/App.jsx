@@ -27,20 +27,9 @@ import ProjectDetailsPage from './pages/ProjectDetailsPage';
 
 // Student Protected Pages
 import StudentDashboardPage from './pages/StudentDashboardPage';
+import StudentLearningPage from './pages/StudentLearningPage';
 import LearningPlayerPage from './pages/LearningPlayerPage';
 import {
-  StudentQuizListPage,
-  StudentQuizTakePage,
-  StudentQuizResultPage
-} from './pages/QuizPages';
-import {
-  StudentAssignmentListPage,
-  StudentAssignmentDetailPage,
-  StudentSubmissionHistoryPage
-} from './pages/AssignmentPages';
-import {
-  AssessmentsPage,
-  AssignmentsPage,
   CertificatesPage,
   PaymentsPage,
   ProfilePage
@@ -66,10 +55,6 @@ function App() {
             <Route path="verify-certificate/:certificateNumber" element={<VerifyCertificatePage />} />
             <Route path="payment-result" element={<PaymentResultPage />} />
             <Route path="about" element={<AboutPage />} />
-            {/* The standalone roadmap page is removed; the curriculum now lives
-                inside each Admin-managed course. Old /roadmap links go to the
-                dynamic DevOps catalog filter instead of a fixed course slug. */}
-            <Route path="roadmap" element={<Navigate to="/courses?category=devops" replace />} />
             <Route path="projects" element={<ProjectsPage />} />
             <Route path="projects/:slug" element={<ProjectDetailsPage />} />
             <Route path="career-support" element={<CareerSupportPage />} />
@@ -78,27 +63,20 @@ function App() {
             <Route path="faqs" element={<Navigate to="/faq" replace />} />
             <Route path="privacy-policy" element={<LegalPage type="privacy" />} />
             <Route path="terms" element={<LegalPage type="terms" />} />
+            {/* Redirect /roadmap to /projects#roadmap-stages */}
+            <Route path="roadmap" element={<Navigate to="/projects" replace />} />
+            <Route path="devops-roadmap" element={<Navigate to="/projects" replace />} />
           </Route>
 
           {/* Student Classroom Player */}
           <Route path="/student/courses/:courseId" element={<LearningPlayerPage />} />
 
-          {/* Student Quiz flow */}
-          <Route path="/student/courses/:courseId/quizzes" element={<StudentQuizListPage />} />
-          <Route path="/student/courses/:courseId/quizzes/:quizId" element={<StudentQuizTakePage />} />
-          <Route path="/student/courses/:courseId/quizzes/:quizId/results/:attemptId" element={<StudentQuizResultPage />} />
-
-          {/* Student Assignment & Project flow */}
-          <Route path="/student/courses/:courseId/assignments" element={<StudentAssignmentListPage />} />
-          <Route path="/student/courses/:courseId/assignments/:assignmentId" element={<StudentAssignmentDetailPage />} />
-          <Route path="/student/assignments/history" element={<StudentSubmissionHistoryPage />} />
-
           {/* Student Dashboard Portal */}
           <Route path="/student" element={<StudentLayout />}>
             <Route path="dashboard" element={<StudentDashboardPage />} />
-            <Route path="courses" element={<StudentDashboardPage />} />
-            <Route path="assessments" element={<AssessmentsPage />} />
-            <Route path="assignments" element={<AssignmentsPage />} />
+            <Route path="learning" element={<StudentLearningPage />} />
+            {/* Old "My Courses" URL kept alive — redirects to the Learning hub */}
+            <Route path="courses" element={<Navigate to="/student/learning" replace />} />
             <Route path="certificates" element={<CertificatesPage />} />
             <Route path="payments" element={<PaymentsPage />} />
             <Route path="profile" element={<ProfilePage />} />

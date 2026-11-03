@@ -14,7 +14,10 @@ import {
   GraduationCap,
   X
 } from 'lucide-react';
-import { CtaBanner } from '../components/BrandComponents';
+import { PageHero, CtaBanner } from '../components/BrandComponents';
+import { AnimatedSection } from '../components/AnimatedSection';
+import { RevealGroup } from '../components/RevealGroup';
+import projectImage from '../assests/project.png';
 
 const ProjectsPage = () => {
   const [projects, setProjects] = useState([]);
@@ -134,7 +137,7 @@ const ProjectsPage = () => {
   }, [projects, loading, isTransitioning]);
 
   return (
-    <div className="bg-[#FAFBFD] min-h-screen text-[#344054] relative">
+    <div className="bg-[#F8FAFC] min-h-screen text-[#344054] relative">
       
       {/* Scroll progress indicator at top edge */}
       <div
@@ -143,99 +146,97 @@ const ProjectsPage = () => {
       />
 
       {/* ========================================================================= */}
-      {/* HERO SECTION — Matching Homepage's #FFFCF7 Header Palette                */}
+      {/* HERO SECTION — Matching AutoOps School Two-Column Brand Design           */}
       {/* ========================================================================= */}
-      <section className="bg-[#FFFCF7] border-b border-[#F0EBE1] py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl space-y-4">
-            
-            {/* Eyebrow Badge (Matching Homepage Soft Cream Badge) */}
-            <div className="inline-flex items-center gap-2 bg-[#FFF2BF] border border-[#F4D36B]/60 text-[#102747] px-3.5 py-1 rounded-full text-xs font-bold tracking-wide shadow-2xs">
-              <GraduationCap className="h-4 w-4 text-[#173563] shrink-0" />
-              <span>Practical Portfolio · Real-World Engineering</span>
-            </div>
-
-            {/* Main Heading (Matching Homepage 3.35rem weight & highlight styling) */}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#12294B] tracking-tight leading-[1.15]">
-              Hands-On <span className="text-[#2B6FE0]">Cloud & DevOps</span> Projects
-            </h1>
-
-            {/* Subheading */}
-            <p className="text-base sm:text-lg text-[#475467] leading-relaxed font-normal">
-              Practice with structured project scenarios that connect foundational concepts to operational problem-solving and industry production environments.
-            </p>
-
-            {/* Quick Benefits Badges */}
-            <div className="flex flex-wrap items-center gap-2.5 pt-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#E4E7EC] text-xs font-semibold text-[#12294B] shadow-2xs">
-                <Terminal className="w-3.5 h-3.5 text-[#2B6FE0]" />
-                <span>Production Architecture</span>
-              </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-[#E4E7EC] text-xs font-semibold text-[#12294B] shadow-2xs">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#12B76A]" />
-                <span>Industry Standards</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
+      <PageHero
+        badge="Practical Portfolio · Real-World Engineering"
+        title={
+          <>
+            Hands-On <span className="text-[#3478F6]">Cloud & DevOps</span> Projects
+          </>
+        }
+        subtitle="Turn technical knowledge into practical engineering experience. Work through real-world project scenarios covering automation, cloud infrastructure, CI/CD pipelines, deployment workflows, and production-oriented problem-solving."
+        image={projectImage}
+        imageAlt="Hands-On Cloud & DevOps Projects Architecture"
+        features={[
+          { text: 'Production Architecture', icon: Terminal },
+          { text: 'Industry Standards', icon: ShieldCheck },
+          { text: 'Practical Engineering Skills', icon: CheckCircle2 }
+        ]}
+        primaryCta={{ text: 'Explore Projects', link: '#projects-catalog' }}
+        secondaryCta={{ text: 'Explore Courses', link: '/courses' }}
+      />
 
       {/* ========================================================================= */}
       {/* INTRO FEATURE PANEL — Styled like Homepage's "Why Learn" section          */}
       {/* ========================================================================= */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        <div className="bg-white rounded-2xl border border-gray-200/90 p-6 sm:p-8 shadow-[0_4px_20px_rgba(18,41,75,0.04)] mb-10">
-          <div className="max-w-3xl">
-            <span className="text-xs uppercase tracking-widest font-extrabold text-[#3F6FA8] block mb-1">
-              Skill Development
-            </span>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-[#173563] tracking-tight">
-              How Practical Projects Support Skill Development
-            </h2>
-            <p className="mt-2 text-sm text-[#475467] leading-relaxed">
-              At AutoOps School, projects are not just code demonstrations — they are structured engineering exercises designed to mirror real industry environments. By working through deployment challenges, configuration tasks, and troubleshooting incidents, learners gain the technical confidence required to succeed in technical interviews and day-to-day IT roles.
-            </p>
-          </div>
+      <div id="projects-catalog" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 scroll-mt-24">
+        {/* ========================================================================= */}
+        {/* SKILL DEVELOPMENT PANEL — Premium white container, brand-aligned          */}
+        {/* ========================================================================= */}
+        <section className="bg-white rounded-[20px] border border-[#E2E8F0] p-6 sm:p-10 lg:p-14 shadow-[0_6px_24px_rgba(18,41,75,0.05)] mb-10">
+          <AnimatedSection direction="up">
+            <div className="max-w-4xl">
+              <span className="text-[13px] uppercase tracking-[0.16em] font-extrabold text-[#3478F6] block">
+                Skill Development
+              </span>
+              <h2 className="mt-2 text-2xl sm:text-3xl lg:text-[2.35rem] font-extrabold text-[#16345C] tracking-tight leading-snug">
+                How Practical Projects Support <span className="text-[#3478F6]">Skill Development</span>
+              </h2>
+              <div className="mt-4 h-[3px] w-16 rounded-full bg-[#F5D36B]" aria-hidden="true" />
+              <p className="mt-5 text-base sm:text-lg text-[#5B667A] leading-[1.6]">
+                At AutoOps School, projects are not just code demonstrations — they are structured engineering exercises designed to mirror real industry environments. By working through deployment challenges, configuration tasks, and troubleshooting incidents, learners gain the technical confidence required to succeed in technical interviews and day-to-day IT roles.
+              </p>
+            </div>
+          </AnimatedSection>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 pt-6 border-t border-gray-100">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#EAF2FC] text-[#2B6FE0] flex items-center justify-center shrink-0 border border-[#D5E4F7]">
-                <Cpu className="w-5 h-5 stroke-[2.2]" />
+          {/* Thin horizontal divider above the features row */}
+          <div className="mt-8 sm:mt-10 border-t border-[#E2E8F0]" />
+
+          <RevealGroup
+            stagger={100}
+            className="grid grid-cols-1 md:grid-cols-3 gap-y-0 md:gap-y-0 divide-y md:divide-y-0 md:divide-x divide-[#E2E8F0] mt-8 sm:mt-10"
+          >
+            {/* Feature 1 — Production Environments */}
+            <div className="flex items-start gap-4 py-5 md:py-2 px-0 md:px-6 md:first:pl-0 md:last:pr-0">
+              <div className="w-12 h-12 rounded-xl bg-[#EAF2FF] text-[#3478F6] flex items-center justify-center shrink-0">
+                <Cpu className="w-6 h-6 stroke-[1.75]" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-[#102747]">Production Environments</h3>
-                <p className="text-xs text-gray-500 mt-1 leading-normal">
+                <h3 className="text-base font-bold text-[#16345C] leading-snug">Production Environments</h3>
+                <p className="mt-1 text-xs sm:text-[13px] text-[#5B667A] leading-[1.5]">
                   Real container registries, clusters, and infrastructure automation setups.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#E7F6E7] text-[#1E7E34] flex items-center justify-center shrink-0 border border-[#C3E6CB]">
-                <Zap className="w-5 h-5 stroke-[2.2]" />
+            {/* Feature 2 — Incident Scenarios */}
+            <div className="flex items-start gap-4 py-5 md:py-2 px-0 md:px-6 md:first:pl-0 md:last:pr-0">
+              <div className="w-12 h-12 rounded-xl bg-[#E8F5E9] text-[#16A34A] flex items-center justify-center shrink-0">
+                <Zap className="w-6 h-6 stroke-[1.75]" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-[#102747]">Incident Scenarios</h3>
-                <p className="text-xs text-gray-500 mt-1 leading-normal">
+                <h3 className="text-base font-bold text-[#16345C] leading-snug">Incident Scenarios</h3>
+                <p className="mt-1 text-xs sm:text-[13px] text-[#5B667A] leading-[1.5]">
                   Diagnose system degradation, rollbacks, and configuration drift.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#FFF2BF] text-[#102747] flex items-center justify-center shrink-0 border border-[#F4D36B]">
-                <ShieldCheck className="w-5 h-5 stroke-[2.2]" />
+            {/* Feature 3 — Portfolio Validation */}
+            <div className="flex items-start gap-4 py-5 md:py-2 px-0 md:px-6 md:first:pl-0 md:last:pr-0">
+              <div className="w-12 h-12 rounded-xl bg-[#FFF1C2] text-[#16345C] flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-6 h-6 stroke-[1.75]" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-[#102747]">Portfolio Validation</h3>
-                <p className="text-xs text-gray-500 mt-1 leading-normal">
+                <h3 className="text-base font-bold text-[#16345C] leading-snug">Portfolio Validation</h3>
+                <p className="mt-1 text-xs sm:text-[13px] text-[#5B667A] leading-[1.5]">
                   Showcase measurable engineering artifacts in technical interviews.
                 </p>
               </div>
             </div>
-          </div>
-        </div>
+          </RevealGroup>
+        </section>
 
         {/* ========================================================================= */}
         {/* FILTER & SEARCH BAR                                                      */}
@@ -414,7 +415,7 @@ const ProjectsPage = () => {
                       </h3>
 
                       {/* Short Description */}
-                      <p className="text-xs text-gray-500 mt-2 line-clamp-3 leading-relaxed">
+                      <p className="text-xs text-gray-500 mt-2 line-clamp-3 leading-relaxed min-h-[3.6rem]">
                         {project.shortDescription}
                       </p>
 

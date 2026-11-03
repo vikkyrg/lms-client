@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import CourseCard from '../components/CourseCard';
-import { Search, Filter, BookOpen, ArrowUpDown, GraduationCap, X } from 'lucide-react';
-import { CtaBanner } from '../components/BrandComponents';
+import RevealGroup from '../components/RevealGroup';
+import { AnimatedSection } from '../components/AnimatedSection';
+import { Search, Filter, BookOpen, ArrowUpDown, GraduationCap, X, CheckCircle2, ArrowRight } from 'lucide-react';
+import { PageHero, CtaBanner } from '../components/BrandComponents';
+import courseImage from '../assests/course.png';
 
 const CourseCatalogPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -81,39 +84,34 @@ const CourseCatalogPage = () => {
   return (
     <div className="bg-[#FAFBFD] min-h-screen text-[#344054]">
       {/* ========================================================================= */}
-      {/* HERO SECTION — Matching AutoOps School Homepage Design                   */}
+      {/* HERO SECTION — Matching AutoOps School Two-Column Brand Design           */}
       {/* ========================================================================= */}
-      <section className="bg-[#FFFCF7] border-b border-[#F0EBE1] py-12 sm:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl space-y-4">
-            
-            {/* Eyebrow Badge */}
-            <div className="inline-flex items-center gap-2 bg-[#FFF2BF] border border-[#F4D36B]/60 text-[#102747] px-3.5 py-1 rounded-full text-xs font-bold tracking-wide shadow-2xs">
-              <GraduationCap className="h-4 w-4 text-[#173563] shrink-0" />
-              <span>Training Programs · Industry Curriculum</span>
-            </div>
-
-            {/* Main Heading */}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#12294B] tracking-tight leading-[1.15]">
-              Explore <span className="text-[#2B6FE0]">All Courses</span>
-            </h1>
-
-            {/* Subheading */}
-            <p className="text-base sm:text-lg text-[#475467] leading-relaxed font-normal">
-              Structured IT training programs in DevOps Engineering, Java Full Stack Development, and Python Full Stack Development designed for real-world technology careers.
-            </p>
-
-          </div>
-        </div>
-      </section>
+      <PageHero
+        badge="Training Programs · Industry Curriculum"
+        title={
+          <>
+            Explore <span className="text-[#3478F6]">All Courses</span>
+          </>
+        }
+        subtitle="Build in-demand technology skills through structured, industry-focused training programs. Learn Java Full Stack Development and Python Full Stack Development with practical exercises, real-world projects, and guided learning designed to prepare you for modern IT careers."
+        image={courseImage}
+        imageAlt="AutoOps School Structured Courses and Training Programs"
+        features={[
+          'Industry-Relevant Curriculum',
+          'Hands-On Learning',
+          'Career-Focused Training'
+        ]}
+        primaryCta={{ text: 'Explore Courses', link: '#courses-grid' }}
+        secondaryCta={{ text: 'View Projects', link: '/projects' }}
+      />
 
       {/* ========================================================================= */}
       {/* FILTER & SEARCH BAR SECTION                                              */}
       {/* ========================================================================= */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      <div id="courses-grid" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 scroll-mt-24">
         
         {/* Unified Search & Filters Card */}
-        <div className="bg-white rounded-2xl border border-gray-200/90 p-5 sm:p-6 shadow-[0_4px_20px_rgba(18,41,75,0.04)] space-y-4">
+        <AnimatedSection direction="up" delay={50} className="bg-white rounded-2xl border border-gray-200/90 p-5 sm:p-6 shadow-[0_4px_20px_rgba(18,41,75,0.04)] space-y-4">
           <div className="flex flex-col lg:flex-row gap-4 justify-between items-stretch lg:items-center">
             
             {/* Search Input Box */}
@@ -211,7 +209,7 @@ const CourseCatalogPage = () => {
               Showing <span className="font-bold text-[#102747]">{courses.length}</span> {courses.length === 1 ? 'course' : 'courses'}
             </span>
           </div>
-        </div>
+        </AnimatedSection>
 
         {/* ========================================================================= */}
         {/* COURSES GRID                                                             */}
@@ -245,11 +243,13 @@ const CourseCatalogPage = () => {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+          <RevealGroup key={courses.map((c) => c._id || c.slug).join('-')} stagger={90} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
             {courses.map((course) => (
-              <CourseCard key={course._id || course.slug} course={course} />
+              <div key={course._id || course.slug} className="h-full">
+                <CourseCard course={course} />
+              </div>
             ))}
-          </div>
+          </RevealGroup>
         )}
 
       </div>

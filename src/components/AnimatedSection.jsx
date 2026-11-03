@@ -1,10 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
+import { useInView } from '../hooks/useInView';
 
 /**
  * AnimatedSection: Reusable scroll-triggered viewport reveal container.
- * - Uses Intersection Observer with threshold & rootMargin.
+ * - Uses the shared useInView Intersection Observer hook (triggers once, stays revealed).
  * - Graceful fallback: Content remains visible if JS or Observer is unsupported.
- * - Stays visible once revealed (unobserves to prevent jarring loops).
+ * - Respects prefers-reduced-motion: content shows immediately without movement.
  */
 export const AnimatedSection = ({
   children,
@@ -14,42 +15,11 @@ export const AnimatedSection = ({
   threshold = 0.1,
   ...props
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const domRef = useRef(null);
-
-  useEffect(() => {
-    if (!('IntersectionObserver' in window)) {
-      setIsVisible(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-            if (domRef.current) observer.unobserve(domRef.current);
-          }
-        });
-      },
-      {
-        threshold,
-        rootMargin: '0px 0px -40px 0px',
-      }
-    );
-
-    const currentEl = domRef.current;
-    if (currentEl) observer.observe(currentEl);
-
-    return () => {
-      if (currentEl) observer.unobserve(currentEl);
-      observer.disconnect();
-    };
-  }, [threshold]);
+  const [domRef, isVisible] = useInView({ threshold });
 
   const transitionStyle = {
-    transitionDuration: '600ms',
-    transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+    transitionDuration: '700ms',
+    transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
     transitionDelay: `${delay}ms`,
   };
 

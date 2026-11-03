@@ -57,6 +57,50 @@ body {
   will-change: opacity, transform;
 }
 
+/* RevealGroup: staggered scroll-reveal for card collections.
+   Hidden state applies only while the observer is pending, so content
+   stays visible if JS or IntersectionObserver initialization fails. */
+.reveal-group-pending .reveal-group-item {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--reveal-index, 0) * var(--reveal-stagger, 100ms));
+  will-change: opacity, transform;
+}
+
+.reveal-group-visible .reveal-group-item {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: calc(var(--reveal-index, 0) * var(--reveal-stagger, 100ms));
+  /* Released after reveal to keep compositing cheap */
+  will-change: auto;
+}
+
+@keyframes infiniteMarquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-infinite-marquee {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: infiniteMarquee 30s linear infinite;
+}
+
+.animate-infinite-marquee.is-paused {
+  animation-play-state: paused !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root {
     scroll-behavior: auto;
@@ -65,6 +109,9 @@ body {
     animation: none;
     opacity: 1;
     transform: none;
+  }
+  .animate-infinite-marquee {
+    animation: none !important;
   }
   .card-scroll-hidden {
     opacity: 1;
@@ -75,5 +122,24 @@ body {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+  .reveal-group-pending .reveal-group-item,
+  .reveal-group-visible .reveal-group-item {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    transition-delay: 0ms;
+    will-change: auto;
+  }
+}
+
+/* Mobile: keep reveals lightweight with a shorter travel distance */
+@media (max-width: 640px) {
+  .reveal-group-pending .reveal-group-item {
+    transform: translateY(16px);
+    transition-delay: calc(var(--reveal-index, 0) * min(var(--reveal-stagger, 100ms), 70ms));
+  }
+  .reveal-group-visible .reveal-group-item {
+    transition-delay: calc(var(--reveal-index, 0) * min(var(--reveal-stagger, 100ms), 70ms));
   }
 }

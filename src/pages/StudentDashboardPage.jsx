@@ -51,13 +51,10 @@ const StudentDashboardPage = () => {
     Boolean(enr.payment) || (!!enr.course && !isFreeCourse(enr.course));
 
   const renderStatusBadge = (enr) => {
-    if (enr.status === 'pending_approval') {
+    if (enr.status === 'pending_approval' || enr.status === 'pending') {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-          <Clock className="w-3.5 h-3.5" />
-          {enrollmentIsPaid(enr)
-            ? 'Payment verified — Awaiting Admin Approval'
-            : 'Free enrollment — Awaiting Admin Approval'}
+          <Clock className="w-3.5 h-3.5" /> Waiting for Admin Approval
         </span>
       );
     }
@@ -200,10 +197,8 @@ const StudentDashboardPage = () => {
 
                     {/* Pending approval message */}
                     {isPending && (
-                      <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-xl text-xs text-amber-900 leading-relaxed">
-                        {enrollmentIsPaid(enr)
-                          ? 'Your payment has been received and verified by our servers. Your course access is currently pending approval by the Admin. Once approved, you will receive full 3-month access to the classroom, lessons, and PDF materials.'
-                          : 'You are enrolled in this free course — no payment was taken. Your enrollment is currently pending approval by the Admin. Once approved, you will receive full 3-month access to the classroom, lessons, and PDF materials.'}
+                      <div className="p-3.5 bg-amber-50/80 border border-amber-200/90 rounded-xl text-xs text-amber-900 leading-relaxed font-medium">
+                        Your enrollment request has been submitted successfully. Please wait while the administrator reviews your request.
                       </div>
                     )}
 

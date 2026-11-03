@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
+import { resolveMediaUrl } from '../utils/videoUtils';
+import { AnimatedSection } from './AnimatedSection';
+import RevealGroup from './RevealGroup';
 import {
   Quote,
   Star,
@@ -98,7 +101,7 @@ const StudentTestimonials = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14">
+        <AnimatedSection direction="up" delay={50} className="text-center max-w-3xl mx-auto mb-14">
           <span className="inline-block bg-[#294258] text-[#CBD5E1] border border-slate-700/60 text-xs font-bold px-4 py-1.5 rounded-full tracking-wide uppercase mb-3 shadow-xs">
             Testimonials
           </span>
@@ -108,121 +111,135 @@ const StudentTestimonials = () => {
           <p className="mt-3 text-sm sm:text-base text-[#CBD5E1] leading-relaxed">
             Join thousands of satisfied students who have transformed their careers.
           </p>
-        </div>
+        </AnimatedSection>
 
         {/* Desktop View: 3-column cards */}
-        <div className="hidden lg:grid lg:grid-cols-3 gap-6">
-          {testimonials.map((item) => (
-            <div
-              key={item._id}
-              className="bg-[#294258] rounded-2xl border border-slate-700/60 p-7 shadow-md flex flex-col justify-between hover:border-slate-600 transition duration-200"
-            >
-              <div>
-                {/* Quote Icon */}
-                <div className="text-[#FF786D] mb-4">
-                  <Quote className="w-8 h-8 fill-[#FF786D]/20 text-[#FF786D] rotate-180" />
-                </div>
+        <RevealGroup stagger={110} className="hidden lg:grid lg:grid-cols-3 gap-6">
+          {testimonials.map((item) => {
+            const reviewText = item.review || item.feedback || item.comment || item.content || '';
+            const studentName = item.studentName || item.reviewerName || item.name || 'Student';
+            const designation = item.designation || item.courseName || item.role || 'DevOps Student';
+            const avatarUrl = resolveMediaUrl(item.image || item.reviewerAvatar || item.avatar || '');
 
-                {/* Star Rating */}
-                <div className="mb-4">
-                  {renderStars(item.rating)}
-                </div>
+            return (
+              <div
+                key={item._id}
+                className="bg-[#294258] rounded-2xl border border-slate-700/60 p-7 shadow-md flex flex-col justify-between hover:border-slate-600 transition duration-200"
+              >
+                <div>
+                  {/* Quote Icon */}
+                  <div className="text-[#FF786D] mb-4">
+                    <Quote className="w-8 h-8 fill-[#FF786D]/20 text-[#FF786D] rotate-180" />
+                  </div>
 
-                {/* Review Text */}
-                <p className="text-sm sm:text-[14.5px] text-[#CBD5E1] leading-relaxed line-clamp-6">
-                  "{item.review}"
-                </p>
-              </div>
+                  {/* Star Rating */}
+                  <div className="mb-4">
+                    {renderStars(item.rating)}
+                  </div>
 
-              {/* Student Info */}
-              <div className="flex items-center gap-3.5 pt-6 mt-6 border-t border-slate-700/60">
-                {item.image ? (
-                  <img
-                    src={item.image}
-                    alt={item.studentName}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-[#FF786D] shrink-0"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      if (e.currentTarget.nextSibling) {
-                        e.currentTarget.nextSibling.style.display = 'flex';
-                      }
-                    }}
-                  />
-                ) : null}
-                <div
-                  className={`w-12 h-12 rounded-full bg-[#102B43] text-[#FF786D] border border-slate-600 font-bold flex items-center justify-center text-sm shrink-0 ${
-                    item.image ? 'hidden' : 'flex'
-                  }`}
-                >
-                  {getInitials(item.studentName)}
-                </div>
-                <div className="min-w-0">
-                  <h4 className="text-sm font-bold text-white truncate leading-snug">
-                    {item.studentName}
-                  </h4>
-                  <p className="text-xs text-[#CBD5E1] truncate mt-0.5">
-                    {item.designation}
+                  {/* Review Text */}
+                  <p className="text-sm sm:text-[14.5px] text-[#CBD5E1] leading-relaxed line-clamp-6">
+                    "{reviewText}"
                   </p>
                 </div>
+
+                {/* Student Info */}
+                <div className="flex items-center gap-3.5 pt-6 mt-6 border-t border-slate-700/60">
+                  {avatarUrl ? (
+                    <img
+                      src={avatarUrl}
+                      alt={studentName}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-[#FF786D] shrink-0"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        if (e.currentTarget.nextSibling) {
+                          e.currentTarget.nextSibling.style.display = 'flex';
+                        }
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className={`w-12 h-12 rounded-full bg-[#102B43] text-[#FF786D] border border-slate-600 font-bold flex items-center justify-center text-sm shrink-0 ${
+                      avatarUrl ? 'hidden' : 'flex'
+                    }`}
+                  >
+                    {getInitials(studentName)}
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-sm font-bold text-white truncate leading-snug">
+                      {studentName}
+                    </h4>
+                    <p className="text-xs text-[#CBD5E1] truncate mt-0.5">
+                      {designation}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            );
+          })}
+        </RevealGroup>
 
         {/* Tablet & Mobile View: Carousel / Slide with navigation buttons */}
         <div className="block lg:hidden max-w-xl mx-auto">
-          {currentTestimonial && (
-            <div className="bg-[#294258] rounded-2xl border border-slate-700/60 p-6 sm:p-7 shadow-lg flex flex-col justify-between">
-              <div>
-                {/* Quote Icon */}
-                <div className="text-[#FF786D] mb-4">
-                  <Quote className="w-8 h-8 fill-[#FF786D]/20 text-[#FF786D] rotate-180" />
-                </div>
+          {currentTestimonial && (() => {
+            const currentReviewText = currentTestimonial.review || currentTestimonial.feedback || currentTestimonial.comment || currentTestimonial.content || '';
+            const currentStudentName = currentTestimonial.studentName || currentTestimonial.reviewerName || currentTestimonial.name || 'Student';
+            const currentDesignation = currentTestimonial.designation || currentTestimonial.courseName || currentTestimonial.role || 'DevOps Student';
+            const currentAvatarUrl = resolveMediaUrl(currentTestimonial.image || currentTestimonial.reviewerAvatar || currentTestimonial.avatar || '');
 
-                {/* Star Rating */}
-                <div className="mb-4">
-                  {renderStars(currentTestimonial.rating)}
-                </div>
+            return (
+              <div className="bg-[#294258] rounded-2xl border border-slate-700/60 p-6 sm:p-7 shadow-lg flex flex-col justify-between">
+                <div>
+                  {/* Quote Icon */}
+                  <div className="text-[#FF786D] mb-4">
+                    <Quote className="w-8 h-8 fill-[#FF786D]/20 text-[#FF786D] rotate-180" />
+                  </div>
 
-                {/* Review Text */}
-                <p className="text-sm sm:text-base text-[#CBD5E1] leading-relaxed">
-                  "{currentTestimonial.review}"
-                </p>
-              </div>
+                  {/* Star Rating */}
+                  <div className="mb-4">
+                    {renderStars(currentTestimonial.rating)}
+                  </div>
 
-              {/* Student Info */}
-              <div className="flex items-center gap-3.5 pt-6 mt-6 border-t border-slate-700/60">
-                {currentTestimonial.image ? (
-                  <img
-                    src={currentTestimonial.image}
-                    alt={currentTestimonial.studentName}
-                    className="w-12 h-12 rounded-full object-cover border-2 border-[#FF786D] shrink-0"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                      if (e.currentTarget.nextSibling) {
-                        e.currentTarget.nextSibling.style.display = 'flex';
-                      }
-                    }}
-                  />
-                ) : null}
-                <div
-                  className={`w-12 h-12 rounded-full bg-[#102B43] text-[#FF786D] border border-slate-600 font-bold flex items-center justify-center text-sm shrink-0 ${
-                    currentTestimonial.image ? 'hidden' : 'flex'
-                  }`}
-                >
-                  {getInitials(currentTestimonial.studentName)}
-                </div>
-                <div className="min-w-0">
-                  <h4 className="text-sm font-bold text-white truncate leading-snug">
-                    {currentTestimonial.studentName}
-                  </h4>
-                  <p className="text-xs text-[#CBD5E1] truncate mt-0.5">
-                    {currentTestimonial.designation}
+                  {/* Review Text */}
+                  <p className="text-sm sm:text-base text-[#CBD5E1] leading-relaxed">
+                    "{currentReviewText}"
                   </p>
                 </div>
+
+                {/* Student Info */}
+                <div className="flex items-center gap-3.5 pt-6 mt-6 border-t border-slate-700/60">
+                  {currentAvatarUrl ? (
+                    <img
+                      src={currentAvatarUrl}
+                      alt={currentStudentName}
+                      className="w-12 h-12 rounded-full object-cover border-2 border-[#FF786D] shrink-0"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                        if (e.currentTarget.nextSibling) {
+                          e.currentTarget.nextSibling.style.display = 'flex';
+                        }
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className={`w-12 h-12 rounded-full bg-[#102B43] text-[#FF786D] border border-slate-600 font-bold flex items-center justify-center text-sm shrink-0 ${
+                      currentAvatarUrl ? 'hidden' : 'flex'
+                    }`}
+                  >
+                    {getInitials(currentStudentName)}
+                  </div>
+                  <div className="min-w-0">
+                    <h4 className="text-sm font-bold text-white truncate leading-snug">
+                      {currentStudentName}
+                    </h4>
+                    <p className="text-xs text-[#CBD5E1] truncate mt-0.5">
+                      {currentDesignation}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* Navigation Controls */}
           {testimonials.length > 1 && (

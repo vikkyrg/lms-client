@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Menu, X, BookOpen, LogOut, Search } from 'lucide-react';
+import { Menu, X, BookOpen, LogOut } from 'lucide-react';
 import logoImg from '../assests/logo.png';
 
 const Navbar = () => {
@@ -16,21 +16,16 @@ const Navbar = () => {
   };
 
   const handleNavClick = (e, path) => {
-    e.preventDefault();
     if (location.pathname === path) {
-      window.scrollTo({
-        top: 0,
-        left: 0,
-        behavior: 'smooth',
-      });
-    } else {
-      navigate(path);
+      e.preventDefault();
       window.scrollTo({
         top: 0,
         left: 0,
         behavior: 'smooth',
       });
     }
+    // When navigating to a different route, allow standard Link navigation.
+    // ScrollToTop will immediately reset scroll with behavior: 'instant'.
   };
 
   const navLinks = [
@@ -90,16 +85,8 @@ const Navbar = () => {
             })}
           </div>
 
-          {/* Right Action Icons & Auth */}
-          <div className="hidden md:flex items-center gap-4">
-            <Link
-              to="/courses"
-              className="p-2 text-gray-500 hover:text-[#173563] hover:bg-gray-50 rounded-xl transition"
-              title="Search courses"
-            >
-              <Search className="h-5 w-5" />
-            </Link>
-
+          {/* Right Action Auth */}
+          <div className="hidden md:flex items-center">
             {user ? (
               <div className="flex items-center gap-3">
                 <Link
@@ -124,16 +111,16 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-3">
                 <Link
                   to="/login"
-                  className="text-xs sm:text-sm font-semibold text-[#344054] hover:text-[#173563] px-3.5 py-2 rounded-xl hover:bg-gray-50 transition"
+                  className="text-sm font-medium text-[#102747] hover:text-[#173563] px-3 py-2 transition-colors cursor-pointer"
                 >
                   Log in
                 </Link>
                 <Link
                   to="/register"
-                  className="text-xs sm:text-sm font-bold text-[#102747] bg-[#F4D36B] hover:bg-[#ebd068] px-4 py-2.5 rounded-xl shadow-xs transition"
+                  className="text-sm font-semibold text-[#102747] bg-[#F4D36B] hover:bg-[#ebb338] px-5 py-2.5 rounded-full shadow-xs hover:shadow-sm transition-all duration-200 cursor-pointer"
                 >
                   Sign up
                 </Link>
@@ -142,13 +129,7 @@ const Navbar = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="flex items-center lg:hidden gap-2">
-            <Link
-              to="/courses"
-              className="p-2 text-gray-500 hover:text-[#173563] rounded-lg"
-            >
-              <Search className="h-5 w-5" />
-            </Link>
+          <div className="flex items-center lg:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="p-2 rounded-xl text-gray-700 hover:text-[#173563] hover:bg-gray-100 transition"
@@ -203,18 +184,18 @@ const Navbar = () => {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-2 pt-1">
+              <div className="grid grid-cols-2 gap-3 pt-2">
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-center py-2.5 border border-gray-300 rounded-xl font-semibold text-[#344054] text-xs hover:bg-gray-50 transition"
+                  className="text-center py-2.5 rounded-full font-medium text-[#102747] text-xs hover:bg-gray-100 transition"
                 >
                   Log in
                 </Link>
                 <Link
                   to="/register"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-center py-2.5 bg-[#F4D36B] hover:bg-[#ebd068] text-[#102747] rounded-xl font-bold text-xs shadow-xs transition"
+                  className="text-center py-2.5 bg-[#F4D36B] hover:bg-[#ebb338] text-[#102747] rounded-full font-semibold text-xs shadow-xs transition"
                 >
                   Sign up
                 </Link>

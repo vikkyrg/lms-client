@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
+import { resolveMediaUrl } from '../utils/videoUtils';
+import VideoPlayerModal from './VideoPlayerModal';
+import { AnimatedSection } from './AnimatedSection';
+import RevealGroup from './RevealGroup';
 import {
   Play,
-  X,
   Clock,
   Video as VideoIcon,
   ChevronLeft,
-  ChevronRight,
-  ExternalLink
+  ChevronRight
 } from 'lucide-react';
 
 const StudentVideoTestimonials = () => {
@@ -17,37 +19,32 @@ const StudentVideoTestimonials = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchVideos = async () => {
       try {
         const res = await api.get('/video-testimonials');
-        if (res.data && res.data.videoTestimonials) {
+        if (isMounted && res.data && res.data.videoTestimonials) {
           setVideos(res.data.videoTestimonials);
         }
       } catch (err) {
         console.error('Error fetching video testimonials:', err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     fetchVideos();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // Prevent background scrolling when modal is open
-  useEffect(() => {
-    if (activeVideo) {
-      document.body.style.overflow = 'hidden';
-      const handleKeyDown = (e) => {
-        if (e.key === 'Escape') setActiveVideo(null);
-      };
-      window.addEventListener('keydown', handleKeyDown);
-      return () => {
-        document.body.style.overflow = '';
-        window.removeEventListener('keydown', handleKeyDown);
-      };
-    } else {
-      document.body.style.overflow = '';
-    }
-  }, [activeVideo]);
+  const handleOpenVideo = (videoItem) => {
+    setActiveVideo(videoItem);
+  };
+
+  const handleCloseModal = () => {
+    setActiveVideo(null);
+  };
 
   if (loading) {
     return (
@@ -94,7 +91,7 @@ const StudentVideoTestimonials = () => {
     <section className="bg-[#FAFBFD] py-16 sm:py-20 lg:py-24 border-b border-gray-100 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Heading */}
-        <div className="text-center max-w-3xl mx-auto mb-14">
+        <AnimatedSection direction="up" delay={50} className="text-center max-w-3xl mx-auto mb-14">
           <span className="inline-block bg-[#EAF2FC] text-[#12294B] border border-[#D0E2F6] text-xs font-bold px-3.5 py-1 rounded-full tracking-wider uppercase mb-3 shadow-2xs">
             VIDEO TESTIMONIALS
           </span>
@@ -104,10 +101,10 @@ const StudentVideoTestimonials = () => {
           <p className="mt-3 text-sm sm:text-base text-[#344054] leading-relaxed">
             Watch real stories from students who transformed their careers with our DevOps training programs.
           </p>
-        </div>
+        </AnimatedSection>
 
         {/* Desktop View: 3-column video cards */}
-        <div className="hidden lg:grid lg:grid-cols-3 gap-7">
+        <RevealGroup stagger={110} className="hidden lg:grid lg:grid-cols-3 gap-7">
           {videos.map((item) => (
             <div
               key={item._id}
@@ -116,11 +113,11 @@ const StudentVideoTestimonials = () => {
               {/* Thumbnail Container & Play Trigger */}
               <div
                 className="relative aspect-video bg-slate-900 cursor-pointer overflow-hidden"
-                onClick={() => setActiveVideo(item)}
+                onClick={() => handleOpenVideo(item)}
               >
                 {item.thumbnailUrl ? (
                   <img
-                    src={item.thumbnailUrl}
+                    src={resolveMediaUrl(item.thumbnailUrl)}
                     alt={item.studentName}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
@@ -132,23 +129,23 @@ const StudentVideoTestimonials = () => {
                 )}
 
                 {/* Dark gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
 
                 {/* Video Testimonial Pill Badge */}
-                <div className="absolute top-3 left-3 bg-[#173563]/90 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-white/20">
+                <div className="absolute top-3 left-3 bg-[#173563]/90 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 pointer-events-none">
                   Student Story
                 </div>
 
                 {/* Duration Badge */}
                 {item.duration > 0 && (
-                  <div className="absolute top-3 right-3 bg-black/75 backdrop-blur-xs text-white text-[11px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1">
+                  <div className="absolute top-3 right-3 bg-black/75 backdrop-blur-xs text-white text-[11px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 pointer-events-none">
                     <Clock className="w-3 h-3 text-[#F4D36B]" />
                     <span>{formatDuration(item.duration)}</span>
                   </div>
                 )}
 
                 {/* Play Button Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div className="w-13 h-13 rounded-full bg-[#F4D36B] group-hover:bg-[#ebd068] text-[#102747] flex items-center justify-center shadow-lg transition-transform duration-200 group-hover:scale-110">
                     <Play className="w-6 h-6 fill-current ml-0.5" />
                   </div>
@@ -174,7 +171,7 @@ const StudentVideoTestimonials = () => {
                 <div className="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between">
                   <button
                     type="button"
-                    onClick={() => setActiveVideo(item)}
+                    onClick={() => handleOpenVideo(item)}
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-[#173563] hover:text-[#2B6FE0] transition cursor-pointer"
                   >
                     <span>Watch Testimonial</span>
@@ -189,7 +186,7 @@ const StudentVideoTestimonials = () => {
               </div>
             </div>
           ))}
-        </div>
+        </RevealGroup>
 
         {/* Tablet & Mobile View: Responsive Card & Carousel */}
         <div className="block lg:hidden max-w-md mx-auto">
@@ -197,11 +194,11 @@ const StudentVideoTestimonials = () => {
             <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm flex flex-col">
               <div
                 className="relative aspect-video bg-slate-900 cursor-pointer overflow-hidden"
-                onClick={() => setActiveVideo(currentMobileVideo)}
+                onClick={() => handleOpenVideo(currentMobileVideo)}
               >
                 {currentMobileVideo.thumbnailUrl ? (
                   <img
-                    src={currentMobileVideo.thumbnailUrl}
+                    src={resolveMediaUrl(currentMobileVideo.thumbnailUrl)}
                     alt={currentMobileVideo.studentName}
                     className="w-full h-full object-cover"
                   />
@@ -212,20 +209,20 @@ const StudentVideoTestimonials = () => {
                   </div>
                 )}
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
 
-                <div className="absolute top-3 left-3 bg-[#173563]/90 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+                <div className="absolute top-3 left-3 bg-[#173563]/90 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full pointer-events-none">
                   Student Story
                 </div>
 
                 {currentMobileVideo.duration > 0 && (
-                  <div className="absolute top-3 right-3 bg-black/75 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1">
+                  <div className="absolute top-3 right-3 bg-black/75 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 pointer-events-none">
                     <Clock className="w-3 h-3 text-[#F4D36B]" />
                     <span>{formatDuration(currentMobileVideo.duration)}</span>
                   </div>
                 )}
 
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div className="w-12 h-12 rounded-full bg-[#F4D36B] text-[#102747] flex items-center justify-center shadow-lg">
                     <Play className="w-5 h-5 fill-current ml-0.5" />
                   </div>
@@ -248,7 +245,7 @@ const StudentVideoTestimonials = () => {
                 <div className="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between">
                   <button
                     type="button"
-                    onClick={() => setActiveVideo(currentMobileVideo)}
+                    onClick={() => handleOpenVideo(currentMobileVideo)}
                     className="inline-flex items-center gap-1.5 text-xs font-bold text-[#173563] cursor-pointer"
                   >
                     <span>Watch Testimonial</span>
@@ -305,70 +302,9 @@ const StudentVideoTestimonials = () => {
       </div>
 
       {/* Video Playback Modal Popup */}
-      {activeVideo && (
-        <div
-          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 animate-fade-in"
-          onClick={() => setActiveVideo(null)}
-        >
-          <div
-            className="bg-[#102747] rounded-3xl overflow-hidden max-w-4xl w-full shadow-2xl border border-white/10 relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-white/10 bg-[#0d213c]">
-              <div>
-                <h3 className="text-white font-bold text-sm sm:text-base leading-snug">
-                  {activeVideo.studentName} — Student Story
-                </h3>
-                <p className="text-xs text-gray-400">
-                  {activeVideo.designation}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setActiveVideo(null)}
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition cursor-pointer"
-                aria-label="Close video modal"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Video Player Display */}
-            <div className="relative aspect-video bg-black">
-              {activeVideo.videoUrl.includes('youtube.com') || activeVideo.videoUrl.includes('youtu.be') ? (
-                <iframe
-                  src={`${activeVideo.videoUrl}${activeVideo.videoUrl.includes('?') ? '&' : '?'}autoplay=1&rel=0`}
-                  title={`${activeVideo.studentName} Testimonial Video`}
-                  className="w-full h-full border-0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : (
-                <video
-                  src={activeVideo.videoUrl}
-                  controls
-                  autoPlay
-                  playsInline
-                  className="w-full h-full object-contain"
-                >
-                  Your browser does not support HTML5 video playback.
-                </video>
-              )}
-            </div>
-
-            {/* Modal Footer Description */}
-            {activeVideo.description && (
-              <div className="px-5 sm:px-6 py-3.5 bg-[#0d213c] text-xs text-gray-300">
-                {activeVideo.description}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <VideoPlayerModal video={activeVideo} onClose={handleCloseModal} />
     </section>
   );
 };
 
 export default StudentVideoTestimonials;
-

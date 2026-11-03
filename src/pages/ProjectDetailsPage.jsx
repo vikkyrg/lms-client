@@ -19,6 +19,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { PageHero, CtaBanner } from '../components/BrandComponents';
+import HeroBackgroundWaves from '../components/HeroBackgroundWaves';
 
 const ProjectDetailsPage = () => {
   const { slug } = useParams();
@@ -91,8 +92,11 @@ const ProjectDetailsPage = () => {
       {/* ========================================================================= */}
       {/* HERO SECTION — Matching Homepage Brand Palette                          */}
       {/* ========================================================================= */}
-      <section className="bg-[#FFFCF7] border-b border-[#F0EBE1] py-10 sm:py-14">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="relative bg-[#FFFCF6] border-b border-[#F0EBE1] py-10 sm:py-14 min-h-[calc(100vh-5rem)] min-h-[calc(100svh-5rem)] flex items-center overflow-hidden">
+        {/* Flowing Sky Blue & Yellow Waves Background */}
+        <HeroBackgroundWaves variant="projects" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full my-auto">
           
           <Link
             to="/projects"

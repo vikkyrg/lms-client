@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { PageHero, CtaBanner } from '../components/BrandComponents';
 import { AnimatedSection } from '../components/AnimatedSection';
+import faqImage from '../assests/faq.png';
 
 const CATEGORIES = [
   'All',
@@ -203,7 +204,16 @@ const FaqPage = () => {
       <PageHero
         badge="Knowledge Base"
         title="Frequently Asked Questions"
-        subtitle="Find answers to common questions about AutoOps School's training programs, learning mode, prerequisites, recordings, and career guidance."
+        subtitle="Find clear answers to common questions about AutoOps School's training programs, course prerequisites, learning modes, project work, recordings, and career support. Get the information you need before starting your learning journey."
+        image={faqImage}
+        imageAlt="AutoOps School Frequently Asked Questions Support and Help Desk"
+        features={[
+          'Course Information',
+          'Learning Support',
+          'Career Guidance'
+        ]}
+        primaryCta={{ text: 'Explore Courses', link: '/courses' }}
+        secondaryCta={{ text: 'Contact Us', link: '/contact' }}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
