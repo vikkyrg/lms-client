@@ -1,56 +1,164 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import api from '../services/api';
-import { resolveMediaUrl } from '../utils/videoUtils';
-import VideoPlayerModal from '../components/VideoPlayerModal';
+import VideoTestimonialCard from '../components/VideoTestimonialCard';
 import StudentTestimonials from '../components/StudentTestimonials';
 import {
-  Play,
-  Clock,
   CheckCircle2,
   Sparkles,
-  Video as VideoIcon
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import HeroBackgroundWaves from '../components/HeroBackgroundWaves';
 import { AnimatedSection } from '../components/AnimatedSection';
-import RevealGroup from '../components/RevealGroup';
 
+/**
+ * TestimonialsPage Component
+ * Displays Text-based reviews and Video Testimonials with continuous right-to-left marquee carousel
+ */
 const TestimonialsPage = () => {
   const [videos, setVideos] = useState([]);
   const [loadingVideos, setLoadingVideos] = useState(true);
-  const [activeVideo, setActiveVideo] = useState(null);
+  const [activeVideoId, setActiveVideoId] = useState(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isTouching, setIsTouching] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  const containerRef = useRef(null);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchVideos = async () => {
       try {
         setLoadingVideos(true);
         const res = await api.get('/video-testimonials').catch(() => ({ data: { videoTestimonials: [] } }));
-        setVideos(res.data?.videoTestimonials || []);
+        if (isMounted) {
+          setVideos(res.data?.videoTestimonials || []);
+        }
       } catch (err) {
         console.error('Error fetching video testimonials:', err);
       } finally {
-        setLoadingVideos(false);
+        if (isMounted) setLoadingVideos(false);
       }
     };
     fetchVideos();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  const handleOpenVideo = (videoItem) => {
-    setActiveVideo(videoItem);
+  // Measure container width
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.clientWidth);
+      }
+    };
+    updateWidth();
+    const observer = new ResizeObserver(() => updateWidth());
+    if (containerRef.current) observer.observe(containerRef.current);
+    window.addEventListener('resize', updateWidth);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateWidth);
+    };
+  }, []);
+
+  // Reduced motion preference
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+    const handler = (e) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  // Card width calculation:
+  // Desktop (>= 1024px): 3 complete cards across with 24px gap
+  // Tablet (640px - 1023px): 2 complete cards with 24px gap
+  // Mobile (< 640px): 1 card
+  const cardWidth = useMemo(() => {
+    if (!containerWidth) return 320;
+    if (containerWidth >= 1024) {
+      return Math.floor((containerWidth - 48) / 3);
+    }
+    if (containerWidth >= 640) {
+      return Math.floor((containerWidth - 24) / 2);
+    }
+    return Math.min(320, Math.floor(containerWidth * 0.88));
+  }, [containerWidth]);
+
+  // Seamless looping duplicated list (at least 2 identical sets of >= 3 items)
+  const { displayItems, singleSetCount } = useMemo(() => {
+    if (!videos || videos.length === 0) return { displayItems: [], singleSetCount: 0 };
+    let baseList = [...videos];
+    while (baseList.length < 3) {
+      baseList = [...baseList, ...videos];
+    }
+    return {
+      displayItems: [...baseList, ...baseList],
+      singleSetCount: baseList.length
+    };
+  }, [videos]);
+
+  const isPaused = isHovered || isTouching || isNavigating || isVideoPlaying || prefersReducedMotion;
+
+  const handlePlayVideo = useCallback((id, playingVideo = null) => {
+    containerRef.current?.querySelectorAll('video').forEach((video) => {
+      if (video !== playingVideo && !video.paused) video.pause();
+    });
+    setActiveVideoId(id);
+    setIsVideoPlaying(true);
+  }, []);
+
+  const handlePauseVideo = useCallback((id) => {
+    if (activeVideoId === id) {
+      setIsVideoPlaying(false);
+    }
+  }, [activeVideoId]);
+
+  const handleVideoEnded = useCallback((id) => {
+    if (activeVideoId === id) {
+      setActiveVideoId(null);
+      setIsVideoPlaying(false);
+    }
+  }, [activeVideoId]);
+
+  const handleVideoError = useCallback((id) => {
+    if (activeVideoId === id) {
+      setActiveVideoId(null);
+      setIsVideoPlaying(false);
+    }
+  }, [activeVideoId]);
+
+  const handleStep = (direction) => {
+    if (!containerRef.current || isVideoPlaying) return;
+    const step = (cardWidth + 24) * (direction === 'next' ? 1 : -1);
+    containerRef.current.scrollBy({ left: step, behavior: 'smooth' });
   };
 
-  const handleCloseModal = () => {
-    setActiveVideo(null);
-  };
-
-  const formatDuration = (seconds) => {
-    if (!seconds || isNaN(seconds)) return null;
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  };
+  const marqueeDuration = Math.max(24, singleSetCount * 8.5);
 
   return (
     <div className="bg-[#FAFBFD] min-h-screen text-[#344054]">
+      {/* Keyframe animation for continuous smooth right-to-left marquee */}
+      <style>{`
+        @keyframes videoMarqueeRTL {
+          0% {
+            transform: translate3d(0, 0, 0);
+          }
+          100% {
+            transform: translate3d(-50%, 0, 0);
+          }
+        }
+        .animate-video-ticker {
+          animation: videoMarqueeRTL ${marqueeDuration}s linear infinite;
+          will-change: transform;
+        }
+      `}</style>
+
       {/* Hero Section with Sky Blue & Yellow Flowing Waves Background */}
       <section className="relative bg-[#FFFCF6] text-[#344054] py-12 sm:py-16 md:py-20 min-h-[calc(100vh-5rem)] min-h-[calc(100svh-5rem)] flex items-center border-b border-[#F0EBE1] overflow-hidden">
         <HeroBackgroundWaves variant="about" />
@@ -84,16 +192,20 @@ const TestimonialsPage = () => {
       </section>
 
       {/* ========================================================================= */}
-      {/* TEXT-BASED DYNAMIC STUDENT REVIEWS (EXACT HOMEPAGE DARK NAVY STYLE)      */}
+      {/* TEXT-BASED DYNAMIC STUDENT REVIEWS                                        */}
       {/* ========================================================================= */}
       <StudentTestimonials />
 
       {/* ========================================================================= */}
-      {/* VIDEO TESTIMONIALS SECTION (if any exist)                                */}
+      {/* VIDEO TESTIMONIALS SECTION (CONTINUOUS RIGHT-TO-LEFT MOVING CAROUSEL)    */}
       {/* ========================================================================= */}
       {videos.length > 0 && (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8">
-          <AnimatedSection direction="up" delay={50} className="flex items-center justify-between">
+        <div
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8 overflow-hidden"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <AnimatedSection direction="up" delay={50} className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <span className="text-xs uppercase tracking-widest font-extrabold text-[#3478F6] block mb-1">
                 Video Stories
@@ -102,85 +214,78 @@ const TestimonialsPage = () => {
                 Watch Student Video Testimonials
               </h2>
             </div>
+
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={() => handleStep('prev')}
+                onPointerDown={(event) => {
+                  setIsNavigating(true);
+                  event.currentTarget.setPointerCapture(event.pointerId);
+                }}
+                onPointerUp={() => setIsNavigating(false)}
+                onPointerCancel={() => setIsNavigating(false)}
+                onKeyDown={() => setIsNavigating(true)}
+                onKeyUp={() => setIsNavigating(false)}
+                className="w-10 h-10 rounded-xl bg-white border border-gray-200 text-[#142B50] hover:text-[#3478F6] hover:border-[#3478F6]/40 flex items-center justify-center shadow-xs transition cursor-pointer"
+                aria-label="Previous video"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => handleStep('next')}
+                onPointerDown={(event) => {
+                  setIsNavigating(true);
+                  event.currentTarget.setPointerCapture(event.pointerId);
+                }}
+                onPointerUp={() => setIsNavigating(false)}
+                onPointerCancel={() => setIsNavigating(false)}
+                onKeyDown={() => setIsNavigating(true)}
+                onKeyUp={() => setIsNavigating(false)}
+                className="w-10 h-10 rounded-xl bg-white border border-gray-200 text-[#142B50] hover:text-[#3478F6] hover:border-[#3478F6]/40 flex items-center justify-center shadow-xs transition cursor-pointer"
+                aria-label="Next video"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
           </AnimatedSection>
 
-          <RevealGroup stagger={110} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-            {videos.map((item) => (
-              <div
-                key={item._id}
-                className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs hover:shadow-md transition-all duration-200 flex flex-col group"
-              >
+          {/* Continuous Right-to-Left Carousel Viewport */}
+          <div
+            ref={containerRef}
+            onTouchStart={() => setIsTouching(true)}
+            onTouchEnd={() => setIsTouching(false)}
+            className="w-full overflow-hidden select-none"
+          >
+            <div
+              className="animate-video-ticker flex items-stretch gap-6"
+              style={{
+                width: 'max-content',
+                animationPlayState: isPaused ? 'paused' : 'running'
+              }}
+            >
+              {displayItems.map((item, index) => (
                 <div
-                  className="relative aspect-video bg-slate-900 cursor-pointer overflow-hidden"
-                  onClick={() => handleOpenVideo(item)}
+                  key={`${item._id || item.videoUrl || 'video'}-${index}`}
+                  style={{ width: `${cardWidth}px`, flexShrink: 0 }}
+                  className="transition-transform duration-200 hover:-translate-y-1"
                 >
-                  {item.thumbnailUrl ? (
-                    <img
-                      src={resolveMediaUrl(item.thumbnailUrl)}
-                      alt={item.studentName}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-[#102747] flex flex-col items-center justify-center text-white/50">
-                      <VideoIcon className="w-12 h-12 stroke-1" />
-                      <span className="text-xs mt-2 text-white/70">Watch Student Story</span>
-                    </div>
-                  )}
-
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
-
-                  <div className="absolute top-3 left-3 bg-[#173563]/90 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full pointer-events-none">
-                    Student Story
-                  </div>
-
-                  {item.duration > 0 && (
-                    <div className="absolute top-3 right-3 bg-black/75 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 pointer-events-none">
-                      <Clock className="w-3 h-3 text-[#F4D36B]" />
-                      <span>{formatDuration(item.duration)}</span>
-                    </div>
-                  )}
-
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-13 h-13 rounded-full bg-[#F4D36B] text-[#102747] flex items-center justify-center shadow-lg transition-transform duration-200 group-hover:scale-110">
-                      <Play className="w-6 h-6 fill-current ml-0.5" />
-                    </div>
-                  </div>
+                  <VideoTestimonialCard
+                    item={item}
+                    playbackId={`${item._id || item.videoUrl || 'video'}-${index}`}
+                    isPlaying={activeVideoId === `${item._id || item.videoUrl || 'video'}-${index}`}
+                    onPlay={handlePlayVideo}
+                    onPause={handlePauseVideo}
+                    onEnded={handleVideoEnded}
+                    onError={handleVideoError}
+                  />
                 </div>
-
-                <div className="p-5 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3 className="font-bold text-[#142B50] text-base group-hover:text-[#2B6FE0] transition">
-                      {item.studentName}
-                    </h3>
-                    <p className="text-xs font-semibold text-[#667085] mt-0.5">
-                      {item.designation}
-                    </p>
-                    {item.description && (
-                      <p className="text-xs text-[#344054] mt-2.5 leading-relaxed line-clamp-2">
-                        {item.description}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenVideo(item)}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#142B50] hover:text-[#2B6FE0] transition cursor-pointer"
-                    >
-                      <span>Watch Video</span>
-                      <Play className="w-3 h-3 fill-current" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </RevealGroup>
+              ))}
+            </div>
+          </div>
         </div>
       )}
-
-      {/* Video Modal Popup */}
-      <VideoPlayerModal video={activeVideo} onClose={handleCloseModal} />
     </div>
   );
 };

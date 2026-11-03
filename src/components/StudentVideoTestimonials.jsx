@@ -1,22 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import api from '../services/api';
-import { resolveMediaUrl } from '../utils/videoUtils';
-import VideoPlayerModal from './VideoPlayerModal';
+import VideoTestimonialCard from './VideoTestimonialCard';
 import { AnimatedSection } from './AnimatedSection';
-import RevealGroup from './RevealGroup';
-import {
-  Play,
-  Clock,
-  Video as VideoIcon,
-  ChevronLeft,
-  ChevronRight
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 
+/**
+ * StudentVideoTestimonials Component
+ *
+ * Requirements:
+ * 1. Continuous Right-to-Left Carousel Animation:
+ *    - Seamless, smooth marquee-style right-to-left continuous moving animation.
+ *    - Consistent card spacing (24px).
+ *    - No sudden jumps when reaching the last testimonial (seamless duplicated track loop).
+ * 2. Pause on Mouse Hover:
+ *    - When cursor enters the carousel area, pause movement immediately.
+ *    - When cursor leaves, resume movement smoothly without resetting position.
+ * 3. Pause When Video Is Playing:
+ *    - If user starts playing a testimonial, carousel pauses immediately.
+ *    - Carousel stays stationary while video plays.
+ *    - Video plays inside its card with native controls.
+ *    - When video is paused or finished, resume carousel only if mouse is not hovering.
+ *    - Only 1 video plays at a time.
+ * 4. Previous / Next navigation arrows allow manual stepping.
+ */
 const StudentVideoTestimonials = () => {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeVideo, setActiveVideo] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [activeVideoId, setActiveVideoId] = useState(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isTouching, setIsTouching] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  const containerRef = useRef(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -38,26 +55,111 @@ const StudentVideoTestimonials = () => {
     };
   }, []);
 
-  const handleOpenVideo = (videoItem) => {
-    setActiveVideo(videoItem);
-  };
+  // Measure container width
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.clientWidth);
+      }
+    };
+    updateWidth();
+    const observer = new ResizeObserver(() => updateWidth());
+    if (containerRef.current) observer.observe(containerRef.current);
+    window.addEventListener('resize', updateWidth);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateWidth);
+    };
+  }, []);
 
-  const handleCloseModal = () => {
-    setActiveVideo(null);
+  // Reduced motion preference
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+    const handler = (e) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
+  }, []);
+
+  // Card width calculation:
+  // Desktop (>= 1024px): 3 complete cards across with 24px gap
+  // Tablet (640px - 1023px): 2 complete cards with 24px gap
+  // Mobile (< 640px): 1 card
+  const cardWidth = useMemo(() => {
+    if (!containerWidth) return 320;
+    if (containerWidth >= 1024) {
+      return Math.floor((containerWidth - 48) / 3);
+    }
+    if (containerWidth >= 640) {
+      return Math.floor((containerWidth - 24) / 2);
+    }
+    return Math.min(320, Math.floor(containerWidth * 0.88));
+  }, [containerWidth]);
+
+  // Seamless looping duplicated list (at least 2 identical sets of >= 3 items)
+  const { displayItems, singleSetCount } = useMemo(() => {
+    if (!videos || videos.length === 0) return { displayItems: [], singleSetCount: 0 };
+    let baseList = [...videos];
+    while (baseList.length < 3) {
+      baseList = [...baseList, ...videos];
+    }
+    return {
+      displayItems: [...baseList, ...baseList],
+      singleSetCount: baseList.length
+    };
+  }, [videos]);
+
+  // Whether continuous animation should be paused
+  const isPaused = isHovered || isTouching || isNavigating || isVideoPlaying || prefersReducedMotion;
+
+  const handlePlayVideo = useCallback((id, playingVideo = null) => {
+    containerRef.current?.querySelectorAll('video').forEach((video) => {
+      if (video !== playingVideo && !video.paused) video.pause();
+    });
+    setActiveVideoId(id);
+    setIsVideoPlaying(true);
+  }, []);
+
+  const handlePauseVideo = useCallback((id) => {
+    if (activeVideoId === id) {
+      setIsVideoPlaying(false);
+    }
+  }, [activeVideoId]);
+
+  const handleVideoEnded = useCallback((id) => {
+    if (activeVideoId === id) {
+      setActiveVideoId(null);
+      setIsVideoPlaying(false);
+    }
+  }, [activeVideoId]);
+
+  const handleVideoError = useCallback((id) => {
+    if (activeVideoId === id) {
+      setActiveVideoId(null);
+      setIsVideoPlaying(false);
+    }
+  }, [activeVideoId]);
+
+  // Manual Previous / Next step handling
+  const handleStep = (direction) => {
+    if (!containerRef.current || isVideoPlaying) return;
+    const step = (cardWidth + 24) * (direction === 'next' ? 1 : -1);
+    containerRef.current.scrollBy({ left: step, behavior: 'smooth' });
   };
 
   if (loading) {
     return (
-      <section className="bg-[#FAFBFD] py-16 sm:py-20 border-b border-gray-100">
+      <section className="bg-[#FAFBFD] py-14 sm:py-18 border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-12 animate-pulse">
+          <div className="text-center max-w-2xl mx-auto mb-10 animate-pulse">
             <div className="h-5 w-36 bg-gray-200 rounded-full mx-auto mb-3" />
             <div className="h-8 w-72 bg-gray-200 rounded-lg mx-auto mb-3" />
             <div className="h-4 w-96 bg-gray-200 rounded mx-auto" />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="bg-white rounded-2xl border border-gray-200 p-4 h-80 animate-pulse" />
+              <div key={n} className="bg-white rounded-2xl border border-gray-200 p-4 h-[440px] animate-pulse" />
             ))}
           </div>
         </div>
@@ -65,244 +167,122 @@ const StudentVideoTestimonials = () => {
     );
   }
 
-  // Gracefully hide section if no videos exist
   if (!videos || videos.length === 0) {
     return null;
   }
 
-  const formatDuration = (seconds) => {
-    if (!seconds || isNaN(seconds)) return null;
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  };
-
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev === videos.length - 1 ? 0 : prev + 1));
-  };
-
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev === 0 ? videos.length - 1 : prev - 1));
-  };
-
-  const currentMobileVideo = videos[currentIndex];
+  // Consistent speed: 8 seconds per unique card, minimum 24 seconds
+  const marqueeDuration = Math.max(24, singleSetCount * 8.5);
 
   return (
-    <section className="bg-[#FAFBFD] py-16 sm:py-20 lg:py-24 border-b border-gray-100 relative">
+    <section
+      className="bg-[#FAFBFD] py-14 sm:py-18 border-b border-gray-100 relative overflow-hidden"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Keyframe animation for continuous smooth right-to-left marquee */}
+      <style>{`
+        @keyframes videoMarqueeRTL {
+          0% {
+            transform: translate3d(0, 0, 0);
+          }
+          100% {
+            transform: translate3d(-50%, 0, 0);
+          }
+        }
+        .animate-video-ticker {
+          animation: videoMarqueeRTL ${marqueeDuration}s linear infinite;
+          will-change: transform;
+        }
+      `}</style>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Heading */}
-        <AnimatedSection direction="up" delay={50} className="text-center max-w-3xl mx-auto mb-14">
-          <span className="inline-block bg-[#EAF2FC] text-[#12294B] border border-[#D0E2F6] text-xs font-bold px-3.5 py-1 rounded-full tracking-wider uppercase mb-3 shadow-2xs">
-            VIDEO TESTIMONIALS
-          </span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#173563] tracking-tight leading-tight">
-            Hear From Our <span className="text-[#2B6FE0]">Successful Students</span>
-          </h2>
-          <p className="mt-3 text-sm sm:text-base text-[#344054] leading-relaxed">
-            Watch real stories from students who transformed their careers with our DevOps training programs.
-          </p>
+        {/* Header & Controls */}
+        <AnimatedSection direction="up" delay={50} className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+          <div>
+            <div className="inline-flex items-center gap-2 bg-[#EAF2FC] text-[#12294B] border border-[#D0E2F6] text-xs font-bold px-3 py-1 rounded-full tracking-wider uppercase mb-2 shadow-2xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#2B6FE0]" />
+              <span>VIDEO TESTIMONIALS</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#173563] tracking-tight leading-tight">
+              Hear From Our <span className="text-[#2B6FE0]">Successful Students</span>
+            </h2>
+            <p className="mt-2 text-sm text-[#475467] leading-relaxed max-w-2xl">
+              Watch real stories from learners who leveled up their skills and transformed their careers with AutoOps School.
+            </p>
+          </div>
+
+          {/* Previous / Next Arrow Controls */}
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            <button
+              type="button"
+              onClick={() => handleStep('prev')}
+              onPointerDown={(event) => {
+                setIsNavigating(true);
+                event.currentTarget.setPointerCapture(event.pointerId);
+              }}
+              onPointerUp={() => setIsNavigating(false)}
+              onPointerCancel={() => setIsNavigating(false)}
+              onKeyDown={() => setIsNavigating(true)}
+              onKeyUp={() => setIsNavigating(false)}
+              className="w-10 h-10 rounded-xl bg-white border border-gray-200 text-[#173563] hover:text-[#2B6FE0] hover:border-[#2B6FE0]/40 flex items-center justify-center shadow-xs hover:shadow-sm transition cursor-pointer"
+              aria-label="Previous video"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button
+              type="button"
+              onClick={() => handleStep('next')}
+              onPointerDown={(event) => {
+                setIsNavigating(true);
+                event.currentTarget.setPointerCapture(event.pointerId);
+              }}
+              onPointerUp={() => setIsNavigating(false)}
+              onPointerCancel={() => setIsNavigating(false)}
+              onKeyDown={() => setIsNavigating(true)}
+              onKeyUp={() => setIsNavigating(false)}
+              className="w-10 h-10 rounded-xl bg-white border border-gray-200 text-[#173563] hover:text-[#2B6FE0] hover:border-[#2B6FE0]/40 flex items-center justify-center shadow-xs hover:shadow-sm transition cursor-pointer"
+              aria-label="Next video"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
         </AnimatedSection>
 
-        {/* Desktop View: 3-column video cards */}
-        <RevealGroup stagger={110} className="hidden lg:grid lg:grid-cols-3 gap-7">
-          {videos.map((item) => (
-            <div
-              key={item._id}
-              className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-all duration-200 flex flex-col group"
-            >
-              {/* Thumbnail Container & Play Trigger */}
+        {/* Continuous Right-to-Left Carousel Viewport */}
+        <div
+          ref={containerRef}
+          onTouchStart={() => setIsTouching(true)}
+          onTouchEnd={() => setIsTouching(false)}
+          className="w-full overflow-hidden select-none"
+        >
+          <div
+            className="animate-video-ticker flex items-stretch gap-6"
+            style={{
+              width: 'max-content',
+              animationPlayState: isPaused ? 'paused' : 'running'
+            }}
+          >
+            {displayItems.map((item, index) => (
               <div
-                className="relative aspect-video bg-slate-900 cursor-pointer overflow-hidden"
-                onClick={() => handleOpenVideo(item)}
+                key={`${item._id || item.videoUrl || 'video'}-${index}`}
+                style={{ width: `${cardWidth}px`, flexShrink: 0 }}
+                className="transition-transform duration-200 hover:-translate-y-1"
               >
-                {item.thumbnailUrl ? (
-                  <img
-                    src={resolveMediaUrl(item.thumbnailUrl)}
-                    alt={item.studentName}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-[#102747] flex flex-col items-center justify-center text-white/50">
-                    <VideoIcon className="w-12 h-12 stroke-1" />
-                    <span className="text-xs mt-2 text-white/70">Watch Student Story</span>
-                  </div>
-                )}
-
-                {/* Dark gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
-
-                {/* Video Testimonial Pill Badge */}
-                <div className="absolute top-3 left-3 bg-[#173563]/90 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 pointer-events-none">
-                  Student Story
-                </div>
-
-                {/* Duration Badge */}
-                {item.duration > 0 && (
-                  <div className="absolute top-3 right-3 bg-black/75 backdrop-blur-xs text-white text-[11px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 pointer-events-none">
-                    <Clock className="w-3 h-3 text-[#F4D36B]" />
-                    <span>{formatDuration(item.duration)}</span>
-                  </div>
-                )}
-
-                {/* Play Button Overlay */}
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-13 h-13 rounded-full bg-[#F4D36B] group-hover:bg-[#ebd068] text-[#102747] flex items-center justify-center shadow-lg transition-transform duration-200 group-hover:scale-110">
-                    <Play className="w-6 h-6 fill-current ml-0.5" />
-                  </div>
-                </div>
+                <VideoTestimonialCard
+                  item={item}
+                  playbackId={`${item._id || item.videoUrl || 'video'}-${index}`}
+                  isPlaying={activeVideoId === `${item._id || item.videoUrl || 'video'}-${index}`}
+                  onPlay={handlePlayVideo}
+                  onPause={handlePauseVideo}
+                  onEnded={handleVideoEnded}
+                  onError={handleVideoError}
+                />
               </div>
-
-              {/* Card Meta Content */}
-              <div className="p-5 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-bold text-[#173563] text-base group-hover:text-[#2B6FE0] transition">
-                    {item.studentName}
-                  </h3>
-                  <p className="text-xs font-semibold text-[#667085] mt-0.5">
-                    {item.designation}
-                  </p>
-                  {item.description && (
-                    <p className="text-xs text-[#344054] mt-2.5 leading-relaxed line-clamp-2">
-                      {item.description}
-                    </p>
-                  )}
-                </div>
-
-                <div className="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={() => handleOpenVideo(item)}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#173563] hover:text-[#2B6FE0] transition cursor-pointer"
-                  >
-                    <span>Watch Testimonial</span>
-                    <Play className="w-3 h-3 fill-current" />
-                  </button>
-                  {item.isFeatured && (
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#A67B10] bg-[#FFF2BF] px-2 py-0.5 rounded-full border border-[#F4D36B]/60">
-                      Featured
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </RevealGroup>
-
-        {/* Tablet & Mobile View: Responsive Card & Carousel */}
-        <div className="block lg:hidden max-w-md mx-auto">
-          {currentMobileVideo && (
-            <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm flex flex-col">
-              <div
-                className="relative aspect-video bg-slate-900 cursor-pointer overflow-hidden"
-                onClick={() => handleOpenVideo(currentMobileVideo)}
-              >
-                {currentMobileVideo.thumbnailUrl ? (
-                  <img
-                    src={resolveMediaUrl(currentMobileVideo.thumbnailUrl)}
-                    alt={currentMobileVideo.studentName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-[#102747] flex flex-col items-center justify-center text-white/50">
-                    <VideoIcon className="w-12 h-12 stroke-1" />
-                    <span className="text-xs mt-2 text-white/70">Watch Student Story</span>
-                  </div>
-                )}
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
-
-                <div className="absolute top-3 left-3 bg-[#173563]/90 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full pointer-events-none">
-                  Student Story
-                </div>
-
-                {currentMobileVideo.duration > 0 && (
-                  <div className="absolute top-3 right-3 bg-black/75 text-white text-[11px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 pointer-events-none">
-                    <Clock className="w-3 h-3 text-[#F4D36B]" />
-                    <span>{formatDuration(currentMobileVideo.duration)}</span>
-                  </div>
-                )}
-
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <div className="w-12 h-12 rounded-full bg-[#F4D36B] text-[#102747] flex items-center justify-center shadow-lg">
-                    <Play className="w-5 h-5 fill-current ml-0.5" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-5">
-                <h3 className="font-bold text-[#173563] text-base">
-                  {currentMobileVideo.studentName}
-                </h3>
-                <p className="text-xs font-semibold text-[#667085] mt-0.5">
-                  {currentMobileVideo.designation}
-                </p>
-                {currentMobileVideo.description && (
-                  <p className="text-xs text-[#344054] mt-2.5 leading-relaxed">
-                    {currentMobileVideo.description}
-                  </p>
-                )}
-
-                <div className="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={() => handleOpenVideo(currentMobileVideo)}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#173563] cursor-pointer"
-                  >
-                    <span>Watch Testimonial</span>
-                    <Play className="w-3 h-3 fill-current" />
-                  </button>
-                  {currentMobileVideo.isFeatured && (
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#A67B10] bg-[#FFF2BF] px-2 py-0.5 rounded-full">
-                      Featured
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Carousel controls */}
-          {videos.length > 1 && (
-            <div className="flex items-center justify-between mt-5 px-2">
-              <div className="flex items-center gap-1.5">
-                {videos.map((_, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setCurrentIndex(idx)}
-                    className={`h-2 rounded-full transition-all cursor-pointer ${
-                      currentIndex === idx ? 'w-6 bg-[#173563]' : 'w-2 bg-gray-300'
-                    }`}
-                    aria-label={`Go to video ${idx + 1}`}
-                  />
-                ))}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={prevSlide}
-                  className="w-9 h-9 rounded-xl bg-white border border-gray-200 text-[#173563] flex items-center justify-center shadow-xs transition hover:bg-gray-50 cursor-pointer"
-                  aria-label="Previous video"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={nextSlide}
-                  className="w-9 h-9 rounded-xl bg-white border border-gray-200 text-[#173563] flex items-center justify-center shadow-xs transition hover:bg-gray-50 cursor-pointer"
-                  aria-label="Next video"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
       </div>
-
-      {/* Video Playback Modal Popup */}
-      <VideoPlayerModal video={activeVideo} onClose={handleCloseModal} />
     </section>
   );
 };
