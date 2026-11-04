@@ -62,7 +62,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Nav Links */}
-          <div className="hidden lg:flex items-center gap-5 xl:gap-7">
+          <div className="hidden lg:flex items-center gap-1 xl:gap-2">
             {navLinks.map((link) => {
               const active = isActive(link.path);
               return (
@@ -70,15 +70,15 @@ const Navbar = () => {
                   key={link.name}
                   to={link.path}
                   onClick={(e) => handleNavClick(e, link.path)}
-                  className={`relative text-sm font-semibold transition py-1 ${
+                  className={`relative text-sm font-semibold transition px-3 py-1.5 rounded-lg ${
                     active
-                      ? 'text-[#173563] font-bold'
-                      : 'text-gray-600 hover:text-[#173563]'
+                      ? 'text-[#172F56] font-bold bg-[#EAF3FF]'
+                      : 'text-gray-600 hover:text-[#172F56] hover:bg-[#EAF3FF]/60'
                   }`}
                 >
                   {link.name}
                   {active && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#F4D36B] rounded-full" />
+                    <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-[#3478F6] rounded-full" />
                   )}
                 </Link>
               );
@@ -91,14 +91,14 @@ const Navbar = () => {
               <div className="flex items-center gap-3">
                 <Link
                   to="/student/dashboard"
-                  className="flex items-center gap-2 text-xs font-semibold text-[#173563] bg-[#FFFAE9] border border-[#FFF2BF] hover:bg-[#FFF2BF] px-3.5 py-2 rounded-xl transition shadow-2xs"
+                  className="flex items-center gap-2 text-xs font-semibold text-[#172F56] bg-[#EAF3FF] border border-[#BFDBFE] hover:bg-[#dcebfe] px-3.5 py-2 rounded-xl transition shadow-2xs"
                 >
-                  <BookOpen className="h-4 w-4 text-[#3F6FA8]" />
+                  <BookOpen className="h-4 w-4 text-[#3478F6]" />
                   My Dashboard
                 </Link>
                 <div className="h-4 w-px bg-gray-200" />
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-[#173563] text-[#F4D36B] font-bold flex items-center justify-center text-xs shadow-2xs">
+                  <div className="w-8 h-8 rounded-full bg-[#172F56] text-[#EAF3FF] font-bold flex items-center justify-center text-xs shadow-2xs">
                     {user.name ? user.name[0].toUpperCase() : 'U'}
                   </div>
                   <button
@@ -114,13 +114,13 @@ const Navbar = () => {
               <div className="flex items-center gap-3">
                 <Link
                   to="/login"
-                  className="text-sm font-medium text-[#102747] hover:text-[#173563] px-3 py-2 transition-colors cursor-pointer"
+                  className="text-sm font-medium text-[#172F56] hover:text-[#3478F6] px-3 py-2 transition-colors cursor-pointer"
                 >
                   Log in
                 </Link>
                 <Link
                   to="/register"
-                  className="text-sm font-semibold text-[#102747] bg-[#F4D36B] hover:bg-[#ebb338] px-5 py-2.5 rounded-full shadow-xs hover:shadow-sm transition-all duration-200 cursor-pointer"
+                  className="text-sm font-semibold text-white bg-[#3478F6] hover:bg-[#2563EB] px-5 py-2.5 rounded-full shadow-xs hover:shadow-sm transition-all duration-200 cursor-pointer"
                 >
                   Sign up
                 </Link>
@@ -152,10 +152,10 @@ const Navbar = () => {
                 setMobileMenuOpen(false);
                 handleNavClick(e, link.path);
               }}
-              className={`block px-3 py-2.5 rounded-xl text-sm font-semibold transition ${
+              className={`block px-3.5 py-2.5 rounded-xl text-sm font-semibold transition ${
                 isActive(link.path)
-                  ? 'bg-[#FFFAE9] text-[#173563] font-bold border-l-4 border-[#F4D36B]'
-                  : 'text-gray-700 hover:bg-gray-50 hover:text-[#173563]'
+                  ? 'bg-[#EAF3FF] text-[#172F56] font-bold border-l-4 border-[#3478F6]'
+                  : 'text-gray-700 hover:bg-[#EAF3FF]/60 hover:text-[#172F56]'
               }`}
             >
               {link.name}
@@ -168,9 +168,9 @@ const Navbar = () => {
                 <Link
                   to="/student/dashboard"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-semibold text-[#173563] bg-[#FFFAE9]"
+                  className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-[#172F56] bg-[#EAF3FF] border border-[#BFDBFE]"
                 >
-                  <BookOpen className="h-4 w-4" />
+                  <BookOpen className="h-4 w-4 text-[#3478F6]" />
                   My Dashboard
                 </Link>
                 <button
@@ -178,7 +178,7 @@ const Navbar = () => {
                     handleLogout();
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50"
+                  className="w-full text-left px-3.5 py-2.5 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50"
                 >
                   Logout
                 </button>
@@ -188,14 +188,14 @@ const Navbar = () => {
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-center py-2.5 rounded-full font-medium text-[#102747] text-xs hover:bg-gray-100 transition"
+                  className="text-center py-2.5 rounded-full font-medium text-[#172F56] text-xs hover:bg-gray-100 transition"
                 >
                   Log in
                 </Link>
                 <Link
                   to="/register"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-center py-2.5 bg-[#F4D36B] hover:bg-[#ebb338] text-[#102747] rounded-full font-semibold text-xs shadow-xs transition"
+                  className="text-center py-2.5 bg-[#3478F6] hover:bg-[#2563EB] text-white rounded-full font-semibold text-xs shadow-xs transition"
                 >
                   Sign up
                 </Link>
