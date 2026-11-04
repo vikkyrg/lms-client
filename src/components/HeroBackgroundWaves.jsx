@@ -2,31 +2,30 @@ import React, { useState, useEffect } from 'react';
 
 /**
  * HeroBackgroundWaves
- * Provides the signature AutoOps School flowing sky-blue & warm yellow wave decoration
- * across the hero background, with a polished delayed entrance animation.
- *
- * Sequence:
- * 1. Initial Page Load: Hero content renders immediately over the clean base background.
- * 2. After ~450ms delay: Sky-blue waves smoothly slide & fade into position.
- * 3. After ~650ms delay: Warm yellow curved wave accents and glow elements gracefully follow.
- * 4. After ~800ms delay: Subtle accent dots fade in.
- *
- * Respects `prefers-reduced-motion` for accessibility (instantly rendered with zero delay).
+ * 
+ * Restored original large, smooth, layered flowing wave design
+ * recolored to the official AutoOps School brand identity:
+ * - Primary Blue: #1F70F7
+ * - Light Blue: #DCEBFF
+ * - Very Light Blue: #EFF6FF
+ * - Crisp White: #FFFFFF
+ * - Logo-inspired subtle gradient accent (Blue -> Purple -> Magenta) applied minimally.
+ * 
+ * Completely eliminates all yellow waves, dots, crosses, and thin lines while preserving
+ * the exact fluid curved proportions, layering, and smooth entrance animation.
  */
 export const HeroBackgroundWaves = ({ variant = 'default', className = '' }) => {
   const [animReady, setAnimReady] = useState(false);
 
   useEffect(() => {
-    // Check if user prefers reduced motion
     if (typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       setAnimReady(true);
       return;
     }
 
-    // Trigger animation state after short initial content-first delay (450ms)
     const timer = setTimeout(() => {
       setAnimReady(true);
-    }, 450);
+    }, 250);
 
     return () => clearTimeout(timer);
   }, []);
@@ -36,15 +35,13 @@ export const HeroBackgroundWaves = ({ variant = 'default', className = '' }) => 
       aria-hidden="true"
       className={`absolute inset-0 w-full h-full overflow-hidden pointer-events-none select-none z-0 ${className}`}
     >
-      {/* Component Styles for Delayed Wave Reveal Transitions */}
+      {/* Wave Transition Styles */}
       <style>{`
-        /* Smooth cubic-bezier for natural organic liquid motion */
         .hb-wave-layer {
           transition: transform 1.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 1.25s cubic-bezier(0.16, 1, 0.3, 1);
           will-change: transform, opacity;
         }
 
-        /* Top-right sky blue waves: slide from top-right down into place */
         .hb-sky-top-init {
           opacity: 0;
           transform: translate(60px, -45px) scale(0.96);
@@ -54,7 +51,6 @@ export const HeroBackgroundWaves = ({ variant = 'default', className = '' }) => 
           transform: translate(0, 0) scale(1);
         }
 
-        /* Bottom-left sky blue waves: slide from bottom-left up into place */
         .hb-sky-bot-init {
           opacity: 0;
           transform: translate(-50px, 45px) scale(0.96);
@@ -64,17 +60,15 @@ export const HeroBackgroundWaves = ({ variant = 'default', className = '' }) => 
           transform: translate(0, 0) scale(1);
         }
 
-        /* Yellow wave accents: enter with an elegant secondary delay */
-        .hb-yellow-init {
+        .hb-accent-top-init {
           opacity: 0;
           transform: translate(35px, -25px) scale(0.95);
         }
-        .hb-yellow-in {
+        .hb-accent-top-in {
           opacity: 1;
           transform: translate(0, 0) scale(1);
         }
 
-        /* Bottom-right warm sweep: enter smoothly from bottom edge */
         .hb-bot-right-init {
           opacity: 0;
           transform: translate(40px, 40px) scale(0.96);
@@ -84,7 +78,6 @@ export const HeroBackgroundWaves = ({ variant = 'default', className = '' }) => 
           transform: translate(0, 0) scale(1);
         }
 
-        /* Atmospheric ambient glows */
         .hb-glow-init {
           opacity: 0;
           transform: scale(0.85);
@@ -94,24 +87,13 @@ export const HeroBackgroundWaves = ({ variant = 'default', className = '' }) => 
           transform: scale(1);
         }
 
-        /* Accent dots */
-        .hb-dots-init {
-          opacity: 0;
-          transform: scale(0.6);
-        }
-        .hb-dots-in {
-          opacity: 1;
-          transform: scale(1);
-        }
-
         @media (prefers-reduced-motion: reduce) {
           .hb-wave-layer,
           .hb-sky-top-init, .hb-sky-top-in,
           .hb-sky-bot-init, .hb-sky-bot-in,
-          .hb-yellow-init, .hb-yellow-in,
+          .hb-accent-top-init, .hb-accent-top-in,
           .hb-bot-right-init, .hb-bot-right-in,
-          .hb-glow-init, .hb-glow-in,
-          .hb-dots-init, .hb-dots-in {
+          .hb-glow-init, .hb-glow-in {
             transition: none !important;
             opacity: 1 !important;
             transform: none !important;
@@ -119,27 +101,21 @@ export const HeroBackgroundWaves = ({ variant = 'default', className = '' }) => 
         }
       `}</style>
 
-      {/* Atmospheric ambient glows (Soft radial depth behind waves) */}
+      {/* Atmospheric ambient soft blue depth behind waves */}
       <div
-        className={`hb-wave-layer absolute -top-32 -left-20 w-[480px] h-[480px] rounded-full bg-gradient-to-br from-[#DCEEFF]/40 via-[#EEF6FF]/20 to-transparent blur-3xl ${
+        className={`hb-wave-layer absolute -top-32 -left-20 w-[500px] h-[500px] rounded-full bg-gradient-to-br from-[#DCEBFF]/50 via-[#EFF6FF]/30 to-transparent blur-3xl ${
+          animReady ? 'hb-glow-in' : 'hb-glow-init'
+        }`}
+        style={{ transitionDelay: '150ms', transitionDuration: '1.4s' }}
+      />
+      <div
+        className={`hb-wave-layer absolute -bottom-32 -right-20 w-[540px] h-[540px] rounded-full bg-gradient-to-tl from-[#DCEBFF]/45 via-[#EFF6FF]/25 to-transparent blur-3xl ${
           animReady ? 'hb-glow-in' : 'hb-glow-init'
         }`}
         style={{ transitionDelay: '300ms', transitionDuration: '1.4s' }}
       />
-      <div
-        className={`hb-wave-layer absolute -bottom-32 -right-20 w-[520px] h-[520px] rounded-full bg-gradient-to-tl from-[#FFD966]/25 via-[#FFF2BF]/20 to-transparent blur-3xl ${
-          animReady ? 'hb-glow-in' : 'hb-glow-init'
-        }`}
-        style={{ transitionDelay: '500ms', transitionDuration: '1.4s' }}
-      />
-      <div
-        className={`hb-wave-layer absolute top-1/3 right-1/4 w-[360px] h-[360px] rounded-full bg-gradient-to-b from-[#EBF4FE]/40 to-transparent blur-2xl ${
-          animReady ? 'hb-glow-in' : 'hb-glow-init'
-        }`}
-        style={{ transitionDelay: '400ms', transitionDuration: '1.4s' }}
-      />
 
-      {/* Primary SVG Organic Flowing Waves */}
+      {/* Restored Large, Layered Organic SVG Waves */}
       <svg
         className="absolute inset-0 w-full h-full"
         viewBox="0 0 1440 640"
@@ -148,175 +124,169 @@ export const HeroBackgroundWaves = ({ variant = 'default', className = '' }) => 
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          <linearGradient id="hb-sky-top" x1="1" y1="0" x2="0.2" y2="1">
+          {/* Subtle Top-Right Sky/Light Blue Gradient */}
+          <linearGradient id="hb-blue-top" x1="1" y1="0" x2="0.2" y2="1">
             <stop offset="0%" stopColor="#CBE4FF" stopOpacity="0.85" />
-            <stop offset="60%" stopColor="#E2F0FF" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="#EEF6FF" stopOpacity="0" />
+            <stop offset="60%" stopColor="#DCEBFF" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#EFF6FF" stopOpacity="0" />
           </linearGradient>
 
-          <linearGradient id="hb-yellow-top" x1="1" y1="0" x2="0.3" y2="1">
-            <stop offset="0%" stopColor="#FFD966" stopOpacity="0.75" />
-            <stop offset="70%" stopColor="#FFEAA3" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#FFF9E6" stopOpacity="0" />
+          {/* Top-Right Secondary Soft Accent (Light Indigo / Blue) */}
+          <linearGradient id="hb-accent-top" x1="1" y1="0" x2="0.3" y2="1">
+            <stop offset="0%" stopColor="#93C5FD" stopOpacity="0.7" />
+            <stop offset="70%" stopColor="#BFDBFE" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#EFF6FF" stopOpacity="0" />
           </linearGradient>
 
-          <linearGradient id="hb-sky-bot" x1="0" y1="1" x2="0.8" y2="0">
-            <stop offset="0%" stopColor="#CBE4FF" stopOpacity="0.9" />
-            <stop offset="55%" stopColor="#E0EFFF" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="#EEF6FF" stopOpacity="0" />
+          {/* Bottom-Left Stronger Primary Blue Wave Gradient */}
+          <linearGradient id="hb-blue-bot-strong" x1="0" y1="1" x2="0.8" y2="0">
+            <stop offset="0%" stopColor="#1F70F7" stopOpacity="0.35" />
+            <stop offset="45%" stopColor="#60A5FA" stopOpacity="0.28" />
+            <stop offset="100%" stopColor="#EFF6FF" stopOpacity="0" />
           </linearGradient>
 
-          <linearGradient id="hb-yellow-bot" x1="1" y1="1" x2="0.2" y2="0">
-            <stop offset="0%" stopColor="#FFD966" stopOpacity="0.75" />
-            <stop offset="60%" stopColor="#FFE8A3" stopOpacity="0.45" />
-            <stop offset="100%" stopColor="#FFFDF6" stopOpacity="0" />
+          {/* Bottom-Left Base Wave Soft Fill */}
+          <linearGradient id="hb-blue-bot-base" x1="0" y1="1" x2="0.8" y2="0">
+            <stop offset="0%" stopColor="#DCEBFF" stopOpacity="0.9" />
+            <stop offset="55%" stopColor="#E6F1FE" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="#EFF6FF" stopOpacity="0" />
           </linearGradient>
 
-          <linearGradient id="hb-sky-mid" x1="0.5" y1="0" x2="0.5" y2="1">
-            <stop offset="0%" stopColor="#D5E8FF" stopOpacity="0.4" />
-            <stop offset="100%" stopColor="#EEF6FF" stopOpacity="0" />
+          {/* Bottom-Right Blue Curve Gradient */}
+          <linearGradient id="hb-blue-bot-right" x1="1" y1="1" x2="0.2" y2="0">
+            <stop offset="0%" stopColor="#BFDBFE" stopOpacity="0.65" />
+            <stop offset="60%" stopColor="#DBEAFE" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+          </linearGradient>
+
+          {/* Logo-inspired subtle ribbon gradient (small refined accent only) */}
+          <linearGradient id="hb-logo-ribbon" x1="1" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#1F70F7" stopOpacity="0.65" />
+            <stop offset="60%" stopColor="#6366F1" stopOpacity="0.5" />
+            <stop offset="100%" stopColor="#A855F7" stopOpacity="0.35" />
           </linearGradient>
         </defs>
 
         {/* ========================================================================= */}
-        {/* 1. SKY-BLUE TOP-RIGHT WAVES (Slide down & expand smoothly from top-right) */}
+        {/* 1. TOP-RIGHT LAYER: Large, Smooth Flowing Curves (Light Blue & White)     */}
         {/* ========================================================================= */}
         <g
           className={`hb-wave-layer ${animReady ? 'hb-sky-top-in' : 'hb-sky-top-init'}`}
           style={{ transitionDelay: '0ms', transformOrigin: 'top right' }}
         >
-          {/* Layer 1: Broadest, softest backdrop */}
+          {/* Layer 1: Broadest, softest backdrop curve */}
           <path
             d="M820 0C980 45 1160 85 1440 45V0H820Z"
-            fill="#E8F3FF"
+            fill="#EFF6FF"
             fillOpacity="0.85"
           />
 
-          {/* Layer 2: Defined organic curve */}
+          {/* Layer 2: Defined smooth organic curve */}
           <path
             d="M960 0C1100 80 1260 135 1440 100V0H960Z"
-            fill="#D4E8FF"
+            fill="#DCEBFF"
             fillOpacity="0.65"
           />
 
           {/* Layer 3: Deepest sky blue sweep */}
           <path
             d="M1090 0C1220 95 1330 160 1440 175V0H1090Z"
-            fill="url(#hb-sky-top)"
+            fill="url(#hb-blue-top)"
           />
         </g>
 
         {/* ========================================================================= */}
-        {/* 2. SKY-BLUE BOTTOM-LEFT WAVES (Rise up & expand from bottom-left corner)  */}
+        {/* 2. BOTTOM-LEFT LAYER: Large, Smooth Anchor Curves (Slightly Stronger Blue) */}
         {/* ========================================================================= */}
         <g
           className={`hb-wave-layer ${animReady ? 'hb-sky-bot-in' : 'hb-sky-bot-init'}`}
           style={{ transitionDelay: '100ms', transformOrigin: 'bottom left' }}
         >
-          {/* Layer 1: Broadest base */}
+          {/* Layer 1: Broadest base curve */}
           <path
             d="M0 360C140 375 290 450 420 640H0V360Z"
-            fill="#EAF3FF"
+            fill="#EFF6FF"
             fillOpacity="0.9"
           />
 
-          {/* Layer 2: Defined blue contour */}
+          {/* Layer 2: Defined light blue contour */}
           <path
             d="M0 430C110 440 230 500 320 640H0V430Z"
-            fill="#D2E7FF"
-            fillOpacity="0.7"
+            fill="#DCEBFF"
+            fillOpacity="0.75"
           />
 
-          {/* Layer 3: Corner anchor sweep */}
+          {/* Layer 3: Corner anchor sweep with stronger brand blue presence */}
           <path
             d="M0 500C70 510 160 550 210 640H0V500Z"
-            fill="url(#hb-sky-bot)"
+            fill="url(#hb-blue-bot-strong)"
           />
 
           {/* Rising crest on left margin */}
           <path
             d="M0 290C50 310 95 350 120 400C85 365 45 330 0 320V290Z"
-            fill="#CBE4FF"
+            fill="#BFDBFE"
             fillOpacity="0.45"
           />
         </g>
 
         {/* ========================================================================= */}
-        {/* 3. WARM YELLOW CURVED WAVE ACCENTS (Follow blue waves with ~200ms delay) */}
+        {/* 3. REFINED CURVED ACCENTS (Replacing former yellow arcs with brand blue)   */}
         {/* ========================================================================= */}
         <g
-          className={`hb-wave-layer ${animReady ? 'hb-yellow-in' : 'hb-yellow-init'}`}
+          className={`hb-wave-layer ${animReady ? 'hb-accent-top-in' : 'hb-accent-top-init'}`}
           style={{ transitionDelay: '200ms', transformOrigin: 'top right' }}
         >
-          {/* Top-Right Yellow Curved Wave Accent */}
+          {/* Top-Right curved wave accent */}
           <path
             d="M1120 0C1230 50 1340 75 1440 70V28C1360 22 1270 12 1120 0Z"
-            fill="url(#hb-yellow-top)"
+            fill="url(#hb-accent-top)"
           />
 
-          {/* Delicate golden ribbon accent sweeping under the blue waves */}
+          {/* Delicate ribbon accent with subtle brand gradient */}
           <path
             d="M1240 0C1320 65 1390 110 1440 125V105C1395 90 1335 55 1260 0H1240Z"
-            fill="#FFD966"
-            fillOpacity="0.55"
+            fill="url(#hb-logo-ribbon)"
           />
         </g>
 
         <g
-          className={`hb-wave-layer ${animReady ? 'hb-yellow-in' : 'hb-yellow-init'}`}
+          className={`hb-wave-layer ${animReady ? 'hb-accent-top-in' : 'hb-accent-top-init'}`}
           style={{ transitionDelay: '250ms', transformOrigin: 'bottom left' }}
         >
-          {/* Bottom-Left Yellow Curved Wave Accent */}
+          {/* Bottom-Left curved wave accent */}
           <path
             d="M0 410C95 420 190 465 250 535L225 560C170 505 85 465 0 455V410Z"
-            fill="url(#hb-yellow-top)"
+            fill="url(#hb-accent-top)"
           />
         </g>
 
         {/* ========================================================================= */}
-        {/* 4. BOTTOM-RIGHT CORNER WAVES (Warm yellow & sky balance curves)           */}
+        {/* 4. BOTTOM-RIGHT CORNER WAVES (Smooth Light Blue Balances)                  */}
         {/* ========================================================================= */}
         <g
           className={`hb-wave-layer ${animReady ? 'hb-bot-right-in' : 'hb-bot-right-init'}`}
           style={{ transitionDelay: '220ms', transformOrigin: 'bottom right' }}
         >
-          {/* Warm cream/yellow sweep */}
+          {/* Smooth very light blue sweep */}
           <path
             d="M1000 640C1150 575 1300 560 1440 550V640H1000Z"
-            fill="#FFF4D6"
+            fill="#EFF6FF"
             fillOpacity="0.75"
           />
 
-          {/* Yellow wave accent tongue */}
+          {/* Light blue wave accent */}
           <path
             d="M1120 640C1220 590 1340 580 1440 575V640H1120Z"
-            fill="url(#hb-yellow-bot)"
+            fill="url(#hb-blue-bot-right)"
           />
 
-          {/* Sky blue under-wave */}
+          {/* Base soft blue under-wave */}
           <path
             d="M1220 640C1300 610 1375 605 1440 605V640H1220Z"
-            fill="#D6EAFF"
+            fill="#DCEBFF"
             fillOpacity="0.65"
           />
-        </g>
-
-        {/* ========================================================================= */}
-        {/* 5. FLOATING ACCENT DOTS (Subtle fade-in finishing touch)                  */}
-        {/* ========================================================================= */}
-        <g
-          className={`hb-wave-layer ${animReady ? 'hb-dots-in' : 'hb-dots-init'}`}
-          style={{ transitionDelay: '350ms' }}
-        >
-          {/* Accent dot cluster - top right */}
-          <circle cx="1380" cy="50" r="3" fill="#3478F6" fillOpacity="0.3" />
-          <circle cx="1405" cy="75" r="2" fill="#FFD966" fillOpacity="0.5" />
-          <circle cx="1350" cy="95" r="2.5" fill="#3478F6" fillOpacity="0.25" />
-
-          {/* Accent dot cluster - bottom left */}
-          <circle cx="65" cy="540" r="3" fill="#3478F6" fillOpacity="0.35" />
-          <circle cx="95" cy="515" r="2" fill="#FFD966" fillOpacity="0.6" />
-          <circle cx="45" cy="480" r="2.5" fill="#3478F6" fillOpacity="0.25" />
         </g>
       </svg>
     </div>

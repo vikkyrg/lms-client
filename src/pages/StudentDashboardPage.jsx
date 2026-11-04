@@ -52,29 +52,31 @@ const StudentDashboardPage = () => {
 
   const renderStatusBadge = (enr) => {
     if (enr.status === 'pending_approval' || enr.status === 'pending') {
+      const isPaid = enrollmentIsPaid(enr);
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
-          <Clock className="w-3.5 h-3.5" /> Waiting for Admin Approval
+          <Clock className="w-3.5 h-3.5" />
+          {isPaid ? 'Awaiting Payment Verification & Approval' : 'Awaiting Admin Approval'}
         </span>
       );
     }
     if (enr.status === 'rejected') {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-800 border border-rose-200">
-          <XCircle className="w-3.5 h-3.5" /> Enrollment Rejected
+          <XCircle className="w-3.5 h-3.5" /> Rejected
         </span>
       );
     }
     if (enr.status === 'expired' || !enr.hasActiveAccess) {
       return (
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-300">
-          <Lock className="w-3.5 h-3.5" /> Course access has expired
+          <Lock className="w-3.5 h-3.5" /> Expired
         </span>
       );
     }
     return (
       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
-        <CheckCircle className="w-3.5 h-3.5" /> Approved — Active Access
+        <CheckCircle className="w-3.5 h-3.5" /> Active
       </span>
     );
   };

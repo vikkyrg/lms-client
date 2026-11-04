@@ -6,7 +6,6 @@ import logoImg from '../assests/logo.png';
 
 const exploreLinks = [
   { name: 'All Courses', path: '/courses' },
-  { name: 'Free Tutorials', path: '/courses?isFree=true' },
   { name: 'Projects', path: '/projects' },
   { name: 'About Us', path: '/about' },
   { name: 'Testimonials', path: '/testimonials' },

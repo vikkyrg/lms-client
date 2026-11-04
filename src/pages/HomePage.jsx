@@ -24,6 +24,7 @@ import {
   BarChart3,
   Cog,
   InfinityIcon,
+  Coffee,
   CheckCircle2
 } from 'lucide-react';
 
@@ -200,7 +201,8 @@ const HomePage = () => {
   useEffect(() => {
     const fetchHomeCourses = async () => {
       try {
-        const res = await api.get('/courses?limit=6');
+        // Wider page so hero course pills can match against all published courses
+        const res = await api.get('/courses?limit=20');
         setCourses(res.data.courses || []);
       } catch (err) {
         console.error('Home load error:', err);
@@ -224,20 +226,40 @@ const HomePage = () => {
     navigate(`/courses?search=${encodeURIComponent(tag)}`);
   };
 
-  const popularCourses = [
+  // Available courses shown as hero pills — matched against real published
+  // course data from the API, so unpublished courses never appear.
+  const coursePillDefs = [
     {
-      title: 'Java Full Stack Development',
-      icon: <Code2 className="w-3.5 h-3.5 stroke-[2.2]" />,
+      key: 'devops',
+      pattern: /devops/i,
+      icon: <InfinityIcon className="w-3.5 h-3.5 stroke-[2.2]" />,
+      iconClass: 'text-[#1F70F7]',
     },
     {
-      title: 'Python Full Stack Development',
+      key: 'java',
+      pattern: /java/i,
+      icon: <Coffee className="w-3.5 h-3.5 stroke-[2.2]" />,
+      iconClass: 'text-[#F5A623]',
+    },
+    {
+      key: 'python',
+      pattern: /python/i,
       icon: (
         <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
           <path d="M12 2c-3.1 0-5.8 1.4-6.8 3.5h3.6c2.7 0 4.9 2.2 4.9 4.9v1.2h2.5c2.7 0 4.9-2.2 4.9-4.9C21.1 4.2 17 2 12 2zm-1.8 2.5c.7 0 1.2.5 1.2 1.2 0 .7-.5 1.2-1.2 1.2-.7 0-1.2-.5-1.2-1.2 0-.7.5-1.2 1.2-1.2zM2.9 12.4c0 2.7 2.2 4.9 4.9 4.9h2.5v-1.2c0-2.7 2.2-4.9 4.9-4.9h3.6C17.8 9.1 15.1 7.7 12 7.7c-5 0-9.1 2.2-9.1 4.7zm8.3 6.7c-.7 0-1.2-.5-1.2-1.2 0-.7.5-1.2 1.2-1.2.7 0 1.2.5 1.2 1.2 0 .7-.5 1.2-1.2 1.2zM12 22c3.1 0 5.8-1.4 6.8-3.5h-3.6c-2.7 0-4.9-2.2-4.9-4.9v-1.2H7.8c-2.7 0-4.9 2.2-4.9 4.9 0 2.5 4.1 4.7 9.1 4.7z" />
         </svg>
       ),
+      iconClass: 'text-[#2B6FE0]',
     },
   ];
+
+  const availableCourses = coursePillDefs
+    .map((def) => ({ ...def, course: courses.find((c) => def.pattern.test(c.title || '')) }))
+    .filter((def) => def.course);
+
+  const handleCoursePillClick = (course) => {
+    navigate(`/courses/${course.slug || course._id}`);
+  };
 
   const whyLearnFeatures = [
     {
@@ -385,26 +407,28 @@ const HomePage = () => {
                   </div>
                 </form>
 
-                {/* Popular Courses */}
+                {/* Available Courses */}
+                {availableCourses.length > 0 && (
                 <div className={`hero-item${heroReady ? ' hero-visible' : ''} space-y-2 pt-0.5`}
                   style={{ animationDelay: '600ms' }}>
                   <div className="text-xs font-bold text-[#667085] uppercase tracking-wider">
-                    POPULAR COURSES:
+                    AVAILABLE COURSES:
                   </div>
                   <div className="flex flex-wrap items-center gap-2.5">
-                    {popularCourses.map((course) => (
+                    {availableCourses.map(({ key, course, icon, iconClass }) => (
                       <button
-                        key={course.title}
+                        key={key}
                         type="button"
-                        onClick={() => handleTagClick(course.title)}
-                        className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#12294B] bg-[#FEF4D1] hover:bg-[#FDECAE] border border-[#F9E295] px-3.5 py-1.5 rounded-full transition-all shadow-[0_1px_2px_rgba(0,0,0,0.04)] cursor-pointer"
+                        onClick={() => handleCoursePillClick(course)}
+                        className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#12294B] bg-white hover:bg-[#EAF2FC] border border-[#D5E4F7] px-3.5 py-1.5 rounded-full transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.04)] cursor-pointer"
                       >
-                        <span className="text-[#12294B] shrink-0 opacity-80">{course.icon}</span>
+                        <span className={`${iconClass} shrink-0`}>{icon}</span>
                         <span>{course.title}</span>
                       </button>
                     ))}
                   </div>
                 </div>
+                )}
 
                 {/* 3 Compact Learning Benefits */}
                 <div className={`hero-item${heroReady ? ' hero-visible' : ''} pt-4 border-t border-[#EAE4D7] grid grid-cols-3 gap-4 max-w-xl`}
@@ -506,26 +530,28 @@ const HomePage = () => {
                 </div>
               </form>
 
-              {/* Popular Courses */}
+              {/* Available Courses */}
+              {availableCourses.length > 0 && (
               <div className={`hero-item${heroReady ? ' hero-visible' : ''} space-y-1.5 pt-0.5`}
                 style={{ animationDelay: '600ms' }}>
                 <div className="text-[10px] min-[360px]:text-[10.5px] font-bold text-[#667085] uppercase tracking-wider">
-                  POPULAR COURSES:
+                  AVAILABLE COURSES:
                 </div>
                 <div className="flex flex-wrap items-center gap-1.5">
-                  {popularCourses.map((course) => (
+                  {availableCourses.map(({ key, course, icon, iconClass }) => (
                     <button
-                      key={course.title}
+                      key={key}
                       type="button"
-                      onClick={() => handleTagClick(course.title)}
-                      className="inline-flex items-center gap-1 text-[10.5px] min-[360px]:text-[11px] font-medium text-[#12294B] bg-[#FEF4D1] hover:bg-[#FDECAE] border border-[#F9E295] px-2.5 py-0.5 rounded-full transition-all shadow-[0_1px_2px_rgba(0,0,0,0.03)] cursor-pointer"
+                      onClick={() => handleCoursePillClick(course)}
+                      className="inline-flex items-center gap-1 text-[10.5px] min-[360px]:text-[11px] font-semibold text-[#12294B] bg-white hover:bg-[#EAF2FC] border border-[#D5E4F7] px-2.5 py-0.5 rounded-full transition-colors shadow-[0_1px_2px_rgba(0,0,0,0.03)] cursor-pointer"
                     >
-                      <span className="text-[#12294B] shrink-0 opacity-80">{course.icon}</span>
+                      <span className={`${iconClass} shrink-0`}>{icon}</span>
                       <span className="whitespace-nowrap">{course.title}</span>
                     </button>
                   ))}
                 </div>
               </div>
+              )}
             </div>
           </div>
         </div>

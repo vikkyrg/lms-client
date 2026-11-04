@@ -203,7 +203,11 @@ const FaqPage = () => {
       {/* Brand Hero Banner */}
       <PageHero
         badge="Knowledge Base"
-        title="Frequently Asked Questions"
+        title={
+          <>
+            Frequently Asked <span className="text-[#3478F6]">Questions</span>
+          </>
+        }
         subtitle="Find clear answers to common questions about AutoOps School's training programs, course prerequisites, learning modes, project work, recordings, and career support. Get the information you need before starting your learning journey."
         image={faqImage}
         imageAlt="AutoOps School Frequently Asked Questions Support and Help Desk"
@@ -212,11 +216,11 @@ const FaqPage = () => {
           'Learning Support',
           'Career Guidance'
         ]}
-        primaryCta={{ text: 'Explore Courses', link: '/courses' }}
+        primaryCta={{ text: 'Find Your Answers', link: '#faq-search-section' }}
         secondaryCta={{ text: 'Contact Us', link: '/contact' }}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+      <div id="faq-search-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 scroll-mt-24">
         
         {/* Search Input Box */}
         <AnimatedSection direction="up" delay={50} className="max-w-2xl mx-auto mb-8">

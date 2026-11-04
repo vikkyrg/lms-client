@@ -3,28 +3,24 @@ import { createPortal } from 'react-dom';
 import {
   X,
   Star,
-  Upload,
-  FileText,
-  Video,
   Sparkles,
-  CheckCircle,
   AlertCircle,
-  Clock,
-  BookOpen
+  BookOpen,
+  Send,
+  Lock,
+  CheckCircle2
 } from 'lucide-react';
 import api from '../services/api';
 
 /**
- * AddCourseReviewModal
- * Clean, responsive modal allowing students and learners to submit text or video reviews
- * directly for the currently opened course.
+ * AddCourseReviewModal Component
  *
- * Sizing & Scrolling Architecture:
- * - max-h-[90vh] / max-h-[90dvh] viewport clamping.
- * - Portal-rendered to document.body to avoid parent container stacking/overflow constraints.
- * - Background scroll locking with scrollbar gutter compensation.
- * - Fixed header (shrink-0), scrollable body (min-h-0 flex-1 overflow-y-auto overscroll-contain),
- *   and fixed footer (shrink-0) so the submit button is always accessible.
+ * Requirements:
+ * 1. Only students enrolled with approved & active access can submit reviews.
+ * 2. Only 1 review per student per course.
+ * 3. Rating (1-5 stars), Review title, Review message.
+ * 4. Submitted reviews initially have 'pending' status.
+ * 5. Clean, professional AutoOps School modal with viewport clamping and body scroll lock.
  */
 const AddCourseReviewModal = ({
   isOpen,
@@ -34,36 +30,70 @@ const AddCourseReviewModal = ({
   user,
   onReviewSubmitted
 }) => {
-  const [reviewType, setReviewType] = useState('text');
-  const [reviewerName, setReviewerName] = useState(user?.name || '');
-  const [reviewerDesignation, setReviewerDesignation] = useState(
-    user?.role === 'student' ? 'Student' : ''
-  );
+  const [rating, setRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
   const [headline, setHeadline] = useState('');
   const [content, setContent] = useState('');
-  const [rating, setRating] = useState(5);
-  const [reviewDate, setReviewDate] = useState(
-    new Date().toISOString().split('T')[0]
-  );
-
-  useEffect(() => {
-    if (user?.name && !reviewerName) {
-      setReviewerName(user.name);
-    }
-  }, [user]);
-
-  // Video specifics
-  const [videoSourceType, setVideoSourceType] = useState('external');
-  const [videoUrl, setVideoUrl] = useState('');
-  const [videoFile, setVideoFile] = useState(null);
-  const [thumbnailFile, setThumbnailFile] = useState(null);
-  const [thumbnailPreview, setThumbnailPreview] = useState('');
-  const [avatarFile, setAvatarFile] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState('');
-
   const [submitting, setSubmitting] = useState(false);
+  const [checkingEligibility, setCheckingEligibility] = useState(true);
+  const [eligibility, setEligibility] = useState({ canReview: true, reason: '' });
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+
+  // Check student eligibility upon opening
+  useEffect(() => {
+    if (!isOpen || !courseId) return;
+
+    let isMounted = true;
+    const checkEligibility = async () => {
+      try {
+        setCheckingEligibility(true);
+        setErrorMessage('');
+        setSuccessMessage('');
+
+        if (!user) {
+          if (isMounted) {
+            setEligibility({
+              canReview: false,
+              reason: 'Please log in to your student account to submit a review for this course.'
+            });
+            setCheckingEligibility(false);
+          }
+          return;
+        }
+
+        const res = await api.get(`/reviews/check-eligibility/${courseId}`);
+        if (isMounted) {
+          setEligibility({
+            canReview: res.data?.canReview,
+            reason: res.data?.reason || '',
+            hasReviewed: res.data?.hasReviewed || false,
+            review: res.data?.review || null
+          });
+          if (res.data?.hasReviewed && res.data?.review) {
+            setRating(res.data.review.rating || 5);
+            setHeadline(res.data.review.headline || res.data.review.title || '');
+            setContent(res.data.review.content || res.data.review.comment || '');
+          }
+        }
+      } catch (err) {
+        if (isMounted) {
+          setEligibility({
+            canReview: false,
+            reason: err.response?.data?.message || 'Could not verify course enrollment status.'
+          });
+        }
+      } finally {
+        if (isMounted) setCheckingEligibility(false);
+      }
+    };
+
+    checkEligibility();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, courseId, user]);
 
   // Lock background body scroll and listen for Escape key
   useEffect(() => {
@@ -94,105 +124,54 @@ const AddCourseReviewModal = ({
 
   if (!isOpen) return null;
 
-  const handleAvatarSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      setErrorMessage('Please select a valid image file (JPG, PNG, WebP) for avatar');
-      return;
-    }
-    setAvatarFile(file);
-    const reader = new FileReader();
-    reader.onload = () => setAvatarPreview(reader.result);
-    reader.readAsDataURL(file);
-  };
-
-  const handleThumbnailSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!file.type.startsWith('image/')) {
-      setErrorMessage('Please select a valid image file for video cover');
-      return;
-    }
-    setThumbnailFile(file);
-    const reader = new FileReader();
-    reader.onload = () => setThumbnailPreview(reader.result);
-    reader.readAsDataURL(file);
-  };
-
-  const handleVideoFileSelect = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 100 * 1024 * 1024) {
-      setErrorMessage('Video file size exceeds maximum limit of 100MB');
-      return;
-    }
-    setVideoFile(file);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
 
-    if (!reviewerName.trim()) {
-      setErrorMessage('Please enter your full name');
+    if (!user) {
+      setErrorMessage('Please sign in to submit your review');
       return;
     }
+
+    if (!headline.trim()) {
+      setErrorMessage('Please provide a brief review title');
+      return;
+    }
+
     if (!content.trim()) {
-      setErrorMessage('Please enter your review description / feedback');
+      setErrorMessage('Please write your review feedback');
       return;
-    }
-    if (reviewType === 'video') {
-      if (videoSourceType === 'external' && !videoUrl.trim()) {
-        setErrorMessage('Please enter a YouTube, Vimeo, or direct MP4 URL');
-        return;
-      }
-      if (videoSourceType === 'upload' && !videoFile) {
-        setErrorMessage('Please select an MP4, WebM, or MOV video file to upload');
-        return;
-      }
     }
 
     try {
       setSubmitting(true);
 
-      const formData = new FormData();
-      formData.append('courseId', courseId);
-      formData.append('reviewerName', reviewerName.trim());
-      formData.append('reviewerDesignation', reviewerDesignation.trim());
-      formData.append('headline', headline.trim());
-      formData.append('content', content.trim());
-      formData.append('rating', String(rating));
-      formData.append('reviewDate', reviewDate);
-      formData.append('reviewType', reviewType);
-      formData.append('status', 'published');
+      const payload = {
+        courseId,
+        studentName: user.name,
+        studentEmail: user.email,
+        reviewerName: user.name,
+        reviewerDesignation: 'Student',
+        headline: headline.trim(),
+        title: headline.trim(),
+        content: content.trim(),
+        comment: content.trim(),
+        rating: Number(rating) || 5,
+        reviewType: 'text',
+        status: 'pending' // Enforces admin approval workflow
+      };
 
-      if (avatarFile) {
-        formData.append('avatarFile', avatarFile);
-      }
-
-      if (reviewType === 'video') {
-        formData.append('videoSourceType', videoSourceType);
-        if (videoSourceType === 'upload' && videoFile) {
-          formData.append('videoFile', videoFile);
-        } else if (videoSourceType === 'external') {
-          formData.append('videoUrl', videoUrl.trim());
-        }
-        if (thumbnailFile) {
-          formData.append('thumbnailFile', thumbnailFile);
-        }
-      }
-
-      // Send to course-specific review creation endpoint
-      const res = await api.post(`/courses/${courseId}/reviews`, formData);
+      const res = await api.post(`/courses/${courseId}/reviews`, payload);
 
       if (res.data?.success) {
-        setSuccessMessage('Thank you! Your review has been submitted successfully.');
+        setSuccessMessage(
+          'Thank you! Your review has been submitted successfully and is pending Admin approval.'
+        );
         setTimeout(() => {
           onReviewSubmitted?.();
           onClose();
-        }, 900);
+        }, 1500);
       } else {
         setErrorMessage(res.data?.message || 'Failed to submit review');
       }
@@ -207,7 +186,7 @@ const AddCourseReviewModal = ({
   };
 
   const modalNode = (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6">
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-3 sm:p-4 md:p-6">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
@@ -220,9 +199,9 @@ const AddCourseReviewModal = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="course-review-modal-title"
-        className="relative flex w-full max-w-xl max-h-[90vh] max-h-[90dvh] flex-col overflow-hidden rounded-2xl sm:rounded-3xl bg-white shadow-2xl border border-gray-100 z-10 animate-in fade-in zoom-in-95 duration-200"
+        className="relative flex w-full max-w-lg max-h-[90vh] max-h-[90dvh] flex-col overflow-hidden rounded-2xl sm:rounded-3xl bg-white shadow-2xl border border-gray-100 z-10 animate-in fade-in zoom-in-95 duration-200"
       >
-        {/* Fixed Modal Header */}
+        {/* Modal Header */}
         <div className="shrink-0 flex items-center justify-between p-4 sm:p-5 border-b border-gray-100 bg-gradient-to-r from-[#EFF6FF] via-white to-[#FEF9E7]/50">
           <div className="space-y-1 pr-4 min-w-0">
             <div className="flex items-center gap-2">
@@ -251,293 +230,155 @@ const AddCourseReviewModal = ({
           </button>
         </div>
 
-        {/* Scrollable Modal Content */}
+        {/* Modal Body */}
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4">
-          {errorMessage && (
-            <div className="flex items-start gap-2.5 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>{errorMessage}</span>
+          {checkingEligibility ? (
+            <div className="py-12 text-center space-y-3">
+              <div className="w-8 h-8 border-3 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto" />
+              <p className="text-xs font-semibold text-gray-500">Checking course enrollment access...</p>
             </div>
-          )}
-
-          {successMessage && (
-            <div className="flex items-center gap-2.5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold">
-              <CheckCircle className="w-4 h-4 shrink-0" />
-              <span>{successMessage}</span>
-            </div>
-          )}
-
-          <form id="add-course-review-form" onSubmit={handleSubmit} className="space-y-4">
-            {/* Review Type Selector: Text vs Video */}
-            <div>
-              <label className="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                Review Type *
-              </label>
-              <div className="grid grid-cols-2 gap-3">
+          ) : !eligibility.canReview ? (
+            <div className="py-8 text-center space-y-4">
+              <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center mx-auto border border-amber-200">
+                <Lock className="w-7 h-7" />
+              </div>
+              <div className="space-y-1 max-w-sm mx-auto">
+                <h4 className="font-extrabold text-gray-900 text-base">Course Access Required</h4>
+                <p className="text-xs text-gray-600 leading-relaxed">{eligibility.reason}</p>
+              </div>
+              <div className="pt-2">
                 <button
                   type="button"
-                  onClick={() => setReviewType('text')}
-                  className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition border cursor-pointer ${
-                    reviewType === 'text'
-                      ? 'bg-[#142D52] text-white border-[#142D52] shadow-sm'
-                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                  }`}
+                  onClick={onClose}
+                  className="px-5 py-2.5 rounded-xl bg-[#142B50] text-white text-xs font-bold hover:bg-[#0f213d] transition cursor-pointer"
                 >
-                  <FileText className="w-4 h-4" />
-                  <span>Text Review</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setReviewType('video')}
-                  className={`flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition border cursor-pointer ${
-                    reviewType === 'video'
-                      ? 'bg-[#142D52] text-white border-[#142D52] shadow-sm'
-                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                  }`}
-                >
-                  <Video className="w-4 h-4 text-[#F4D36B]" />
-                  <span>Video Review</span>
+                  Understood
                 </button>
               </div>
             </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {errorMessage && (
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-medium">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{errorMessage}</span>
+                </div>
+              )}
 
-            {/* Reviewer Name and Role */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">
-                  Your Name *
+              {successMessage && (
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{successMessage}</span>
+                </div>
+              )}
+
+              {/* Star Rating Select */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-700">
+                  Your Rating <span className="text-red-500">*</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => {
+                      const filled = (hoverRating || rating) >= star;
+                      return (
+                        <button
+                          key={star}
+                          type="button"
+                          onClick={() => setRating(star)}
+                          onMouseEnter={() => setHoverRating(star)}
+                          onMouseLeave={() => setHoverRating(0)}
+                          className="p-1 focus:outline-none transition-transform hover:scale-110 cursor-pointer"
+                          aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                        >
+                          <Star
+                            className={`w-6 h-6 ${
+                              filled
+                                ? 'fill-amber-400 text-amber-400'
+                                : 'text-gray-300 fill-gray-100'
+                            }`}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <span className="text-xs font-bold text-slate-700">
+                    {rating} out of 5
+                  </span>
+                </div>
+              </div>
+
+              {/* Review Title / Headline */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-700">
+                  Review Title <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Alex Johnson"
-                  value={reviewerName}
-                  onChange={(e) => setReviewerName(e.target.value)}
-                  className="w-full p-2.5 text-xs text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB]"
+                  placeholder="e.g. Excellent hands-on labs and practical guidance!"
+                  value={headline}
+                  onChange={(e) => setHeadline(e.target.value)}
+                  maxLength={120}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">
-                  Designation / Role (Optional)
+              {/* Review Message */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-700">
+                  Review Message <span className="text-red-500">*</span>
                 </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Cloud Engineer at TechCorp"
-                  value={reviewerDesignation}
-                  onChange={(e) => setReviewerDesignation(e.target.value)}
-                  className="w-full p-2.5 text-xs text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB]"
+                <textarea
+                  required
+                  rows={4}
+                  placeholder="Share details about what you learned, practical exercises, and how this course helped your skills..."
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  maxLength={1000}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition resize-none"
                 />
-              </div>
-            </div>
-
-            {/* Star Rating and Date */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">
-                  Star Rating
-                </label>
-                <div className="flex items-center gap-1.5 pt-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      type="button"
-                      key={star}
-                      onClick={() => setRating(star)}
-                      className="p-1 hover:scale-110 transition cursor-pointer"
-                    >
-                      <Star
-                        className={`w-6 h-6 ${
-                          star <= rating
-                            ? 'fill-amber-400 text-amber-400'
-                            : 'text-gray-300 fill-gray-100'
-                        }`}
-                      />
-                    </button>
-                  ))}
-                  <span className="text-xs font-bold text-slate-700 ml-2">
-                    {rating} of 5 Stars
-                  </span>
-                </div>
+                <p className="text-[11px] text-gray-400 text-right">
+                  {content.length}/1000 characters
+                </p>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">
-                  Review Date
-                </label>
-                <input
-                  type="date"
-                  value={reviewDate}
-                  onChange={(e) => setReviewDate(e.target.value)}
-                  className="w-full p-2.5 text-xs text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB]"
-                />
+              {/* Reviewer Note */}
+              <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-[11px] text-slate-500 leading-relaxed">
+                Reviewing as <strong className="text-slate-800">{user?.name}</strong> ({user?.email}).
+                Your review will be verified and published after Admin review.
               </div>
-            </div>
 
-            {/* Avatar Upload (Optional) */}
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">
-                Profile Photo / Avatar (Optional)
-              </label>
-              <div className="flex items-center gap-3">
-                {avatarPreview ? (
-                  <img
-                    src={avatarPreview}
-                    alt="Avatar preview"
-                    className="w-10 h-10 rounded-full object-cover border border-gray-200"
-                  />
-                ) : (
-                  <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-500">
-                    {reviewerName ? reviewerName.charAt(0).toUpperCase() : 'U'}
-                  </div>
-                )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarSelect}
-                  className="text-xs text-slate-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#2563EB] hover:file:bg-blue-100 cursor-pointer"
-                />
+              {/* Action Buttons */}
+              <div className="pt-2 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  disabled={submitting}
+                  className="px-4 py-2.5 rounded-xl border border-gray-300 text-gray-700 text-xs font-bold hover:bg-gray-50 transition cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#142B50] hover:bg-[#0f213d] text-white text-xs font-extrabold shadow-sm hover:shadow-md transition cursor-pointer disabled:opacity-50"
+                >
+                  {submitting ? (
+                    <>
+                      <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Submitting...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-3.5 h-3.5" />
+                      <span>Submit Review</span>
+                    </>
+                  )}
+                </button>
               </div>
-            </div>
-
-            {/* Headline / Title */}
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">
-                Review Headline (Optional)
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. Best practical DevOps training in the industry!"
-                value={headline}
-                onChange={(e) => setHeadline(e.target.value)}
-                className="w-full p-2.5 text-xs text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB]"
-              />
-            </div>
-
-            {/* Review Content / Description */}
-            <div>
-              <label className="block text-xs font-bold text-gray-700 mb-1">
-                Review Content / Description *
-              </label>
-              <textarea
-                required
-                rows={3}
-                placeholder="Share details about your learning experience, hands-on labs, real-world applicability..."
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="w-full p-2.5 text-xs text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB]"
-              />
-            </div>
-
-            {/* Video Specific Section */}
-            {reviewType === 'video' && (
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <Video className="w-3.5 h-3.5 text-[#2563EB]" />
-                    Video Review Details
-                  </span>
-                  <div className="flex items-center gap-2 text-xs">
-                    <label className="flex items-center gap-1 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="videoSourceType"
-                        checked={videoSourceType === 'external'}
-                        onChange={() => setVideoSourceType('external')}
-                      />
-                      <span>External URL</span>
-                    </label>
-                    <label className="flex items-center gap-1 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="videoSourceType"
-                        checked={videoSourceType === 'upload'}
-                        onChange={() => setVideoSourceType('upload')}
-                      />
-                      <span>Direct Upload</span>
-                    </label>
-                  </div>
-                </div>
-
-                {videoSourceType === 'external' ? (
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Video URL (YouTube, Vimeo, or MP4) *
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="https://www.youtube.com/watch?v=... or .mp4 link"
-                      value={videoUrl}
-                      onChange={(e) => setVideoUrl(e.target.value)}
-                      className="w-full p-2.5 text-xs text-gray-900 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-[#2563EB]"
-                    />
-                  </div>
-                ) : (
-                  <div>
-                    <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Upload Video File (MP4, WebM, MOV - Max 100MB) *
-                    </label>
-                    <input
-                      type="file"
-                      accept="video/mp4,video/webm,video/quicktime"
-                      onChange={handleVideoFileSelect}
-                      className="w-full text-xs text-slate-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#2563EB] hover:file:bg-blue-100 cursor-pointer"
-                    />
-                  </div>
-                )}
-
-                <div>
-                  <label className="block text-xs font-semibold text-gray-700 mb-1">
-                    Video Thumbnail / Cover Image (Optional)
-                  </label>
-                  <div className="flex items-center gap-3">
-                    {thumbnailPreview && (
-                      <img
-                        src={thumbnailPreview}
-                        alt="Cover preview"
-                        className="w-16 h-10 object-cover rounded-lg border border-gray-200"
-                      />
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleThumbnailSelect}
-                      className="text-xs text-slate-600 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-[#2563EB] hover:file:bg-blue-100 cursor-pointer"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-          </form>
-        </div>
-
-        {/* Fixed Modal Footer */}
-        <div className="shrink-0 flex items-center justify-end gap-3 border-t border-gray-100 bg-white p-4 sm:p-5">
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={submitting}
-            className="px-4 py-2.5 rounded-xl border border-gray-300 text-gray-700 text-xs font-bold hover:bg-gray-50 transition cursor-pointer disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            form="add-course-review-form"
-            disabled={submitting}
-            className="px-5 py-2.5 rounded-xl bg-[#142B50] hover:bg-[#0f213d] text-white text-xs font-extrabold shadow-md hover:shadow-lg transition flex items-center gap-2 cursor-pointer disabled:opacity-50"
-          >
-            {submitting ? (
-              <>
-                <div className="w-3.5 h-3.5 border-2 border-[#F4D36B] border-t-transparent rounded-full animate-spin" />
-                <span>Submitting Review...</span>
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-3.5 h-3.5 text-[#F4D36B]" />
-                <span>Submit Course Review</span>
-              </>
-            )}
-          </button>
+            </form>
+          )}
         </div>
       </div>
     </div>

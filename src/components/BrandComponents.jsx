@@ -28,9 +28,9 @@ export const PageHero = ({
 }) => {
   return (
     <div
-      className={`relative bg-[#FFFCF6] border-b border-[#F0EBE1] py-10 sm:py-14 lg:py-16 min-h-[calc(100vh-5rem)] min-h-[calc(100svh-5rem)] flex items-center overflow-hidden ${className}`}
+      className={`relative bg-[#F8FAFD] border-b border-[#E5EDF6] py-10 sm:py-14 lg:py-16 min-h-[calc(100vh-5rem)] min-h-[calc(100svh-5rem)] flex items-center overflow-hidden ${className}`}
     >
-      {/* Decorative Sky Blue & Yellow Flowing Waves Background */}
+      {/* Redesigned Modern Blue & Brand Accent Waves Background */}
       <HeroBackgroundWaves variant={waveVariant} />
 
       <div className="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-12 w-full my-auto">
@@ -40,7 +40,7 @@ export const PageHero = ({
             <div className="lg:col-span-7 xl:col-span-7 space-y-5 max-w-2xl">
               {/* Eyebrow Badge */}
               {badge && (
-                <div className="inline-flex items-center gap-2 bg-[#FFF2BF] border border-[#F4D36B]/70 text-[#142B50] px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-bold tracking-wide shadow-2xs">
+                <div className="inline-flex items-center gap-2 bg-[#EBF3FE] border border-[#BFDBFE] text-[#1F70F7] px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-bold tracking-wide shadow-2xs">
                   <span>{badge}</span>
                 </div>
               )}
@@ -80,21 +80,58 @@ export const PageHero = ({
               {(primaryCta || secondaryCta) && (
                 <div className="flex flex-wrap items-center gap-3 pt-2">
                   {primaryCta && (
-                    <Link
-                      to={primaryCta.link || '/courses'}
-                      className="inline-flex items-center justify-center gap-2 bg-[#142B50] hover:bg-[#10223d] text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-xl shadow-md transition-all duration-200 cursor-pointer group"
-                    >
-                      <span>{primaryCta.text}</span>
-                      <ArrowRight className="w-4 h-4 text-[#FFD95A] transition group-hover:translate-x-0.5" />
-                    </Link>
+                    primaryCta.link?.startsWith('#') ? (
+                      <a
+                        href={primaryCta.link}
+                        onClick={(e) => {
+                          if (primaryCta.onClick) primaryCta.onClick(e);
+                          const el = document.querySelector(primaryCta.link);
+                          if (el) {
+                            e.preventDefault();
+                            el.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }}
+                        className="inline-flex items-center justify-center gap-2 bg-[#142B50] hover:bg-[#10223d] text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-xl shadow-md transition-all duration-200 cursor-pointer group"
+                      >
+                        <span>{primaryCta.text}</span>
+                        <ArrowRight className="w-4 h-4 text-[#FFD95A] transition group-hover:translate-x-0.5" />
+                      </a>
+                    ) : (
+                      <Link
+                        to={primaryCta.link || '/courses'}
+                        onClick={primaryCta.onClick}
+                        className="inline-flex items-center justify-center gap-2 bg-[#142B50] hover:bg-[#10223d] text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-xl shadow-md transition-all duration-200 cursor-pointer group"
+                      >
+                        <span>{primaryCta.text}</span>
+                        <ArrowRight className="w-4 h-4 text-[#FFD95A] transition group-hover:translate-x-0.5" />
+                      </Link>
+                    )
                   )}
                   {secondaryCta && (
-                    <Link
-                      to={secondaryCta.link || '/contact'}
-                      className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-[#142B50] text-xs sm:text-sm font-bold px-5 py-3 rounded-xl border border-slate-300 shadow-2xs hover:shadow-xs transition duration-200 cursor-pointer"
-                    >
-                      <span>{secondaryCta.text}</span>
-                    </Link>
+                    secondaryCta.link?.startsWith('#') ? (
+                      <a
+                        href={secondaryCta.link}
+                        onClick={(e) => {
+                          if (secondaryCta.onClick) secondaryCta.onClick(e);
+                          const el = document.querySelector(secondaryCta.link);
+                          if (el) {
+                            e.preventDefault();
+                            el.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }}
+                        className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-[#142B50] text-xs sm:text-sm font-bold px-5 py-3 rounded-xl border border-slate-300 shadow-2xs hover:shadow-xs transition duration-200 cursor-pointer"
+                      >
+                        <span>{secondaryCta.text}</span>
+                      </a>
+                    ) : (
+                      <Link
+                        to={secondaryCta.link || '/contact'}
+                        onClick={secondaryCta.onClick}
+                        className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-[#142B50] text-xs sm:text-sm font-bold px-5 py-3 rounded-xl border border-slate-300 shadow-2xs hover:shadow-xs transition duration-200 cursor-pointer"
+                      >
+                        <span>{secondaryCta.text}</span>
+                      </Link>
+                    )
                   )}
                 </div>
               )}
@@ -119,7 +156,7 @@ export const PageHero = ({
         ) : (
           <div className="max-w-3xl space-y-5">
             {badge && (
-              <div className="inline-flex items-center gap-2 bg-[#FFF2BF] border border-[#F4D36B]/70 text-[#142B50] px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-bold tracking-wide shadow-2xs mb-1">
+              <div className="inline-flex items-center gap-2 bg-[#EBF3FE] border border-[#BFDBFE] text-[#1F70F7] px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-bold tracking-wide shadow-2xs mb-1">
                 <span>{badge}</span>
               </div>
             )}
@@ -153,21 +190,58 @@ export const PageHero = ({
             {(primaryCta || secondaryCta) && (
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 {primaryCta && (
-                  <Link
-                    to={primaryCta.link || '/courses'}
-                    className="inline-flex items-center justify-center gap-2 bg-[#142B50] hover:bg-[#10223d] text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-xl shadow-md transition-all duration-200 cursor-pointer group"
-                  >
-                    <span>{primaryCta.text}</span>
-                    <ArrowRight className="w-4 h-4 text-[#FFD95A] transition group-hover:translate-x-0.5" />
-                  </Link>
+                  primaryCta.link?.startsWith('#') ? (
+                    <a
+                      href={primaryCta.link}
+                      onClick={(e) => {
+                        if (primaryCta.onClick) primaryCta.onClick(e);
+                        const el = document.querySelector(primaryCta.link);
+                        if (el) {
+                          e.preventDefault();
+                          el.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }}
+                      className="inline-flex items-center justify-center gap-2 bg-[#142B50] hover:bg-[#10223d] text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-xl shadow-md transition-all duration-200 cursor-pointer group"
+                    >
+                      <span>{primaryCta.text}</span>
+                      <ArrowRight className="w-4 h-4 text-[#FFD95A] transition group-hover:translate-x-0.5" />
+                    </a>
+                  ) : (
+                    <Link
+                      to={primaryCta.link || '/courses'}
+                      onClick={primaryCta.onClick}
+                      className="inline-flex items-center justify-center gap-2 bg-[#142B50] hover:bg-[#10223d] text-white text-xs sm:text-sm font-bold px-5 py-3 rounded-xl shadow-md transition-all duration-200 cursor-pointer group"
+                    >
+                      <span>{primaryCta.text}</span>
+                      <ArrowRight className="w-4 h-4 text-[#FFD95A] transition group-hover:translate-x-0.5" />
+                    </Link>
+                  )
                 )}
                 {secondaryCta && (
-                  <Link
-                    to={secondaryCta.link || '/contact'}
-                    className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-[#142B50] text-xs sm:text-sm font-bold px-5 py-3 rounded-xl border border-slate-300 shadow-2xs hover:shadow-xs transition duration-200 cursor-pointer"
-                  >
-                    <span>{secondaryCta.text}</span>
-                  </Link>
+                  secondaryCta.link?.startsWith('#') ? (
+                    <a
+                      href={secondaryCta.link}
+                      onClick={(e) => {
+                        if (secondaryCta.onClick) secondaryCta.onClick(e);
+                        const el = document.querySelector(secondaryCta.link);
+                        if (el) {
+                          e.preventDefault();
+                          el.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }}
+                      className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-[#142B50] text-xs sm:text-sm font-bold px-5 py-3 rounded-xl border border-slate-300 shadow-2xs hover:shadow-xs transition duration-200 cursor-pointer"
+                    >
+                      <span>{secondaryCta.text}</span>
+                    </a>
+                  ) : (
+                    <Link
+                      to={secondaryCta.link || '/contact'}
+                      onClick={secondaryCta.onClick}
+                      className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-[#142B50] text-xs sm:text-sm font-bold px-5 py-3 rounded-xl border border-slate-300 shadow-2xs hover:shadow-xs transition duration-200 cursor-pointer"
+                    >
+                      <span>{secondaryCta.text}</span>
+                    </Link>
+                  )
                 )}
               </div>
             )}

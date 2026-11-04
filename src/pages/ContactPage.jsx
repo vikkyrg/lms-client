@@ -28,7 +28,11 @@ const ContactPage = () => {
       {/* Page Hero matching brand */}
       <PageHero
         badge="Connect With AutoOps School"
-        title="Let's Start Your Learning Journey"
+        title={
+          <>
+            Let's Start Your <span className="text-[#3478F6]">Learning Journey</span>
+          </>
+        }
         subtitle="Have questions about our courses, training programs, or learning approach? Connect with AutoOps School to get the information you need and take the next step toward your technology career."
         image={contactImage}
         imageAlt="AutoOps School Admissions and Contact Support Desk"
@@ -37,8 +41,8 @@ const ContactPage = () => {
           'Training Information',
           'Personalized Guidance'
         ]}
-        primaryCta={{ text: 'Explore Courses', link: '/courses' }}
-        secondaryCta={{ text: 'Contact Us', link: '#contact-form' }}
+        primaryCta={{ text: 'Send an Enquiry', link: '#contact-form' }}
+        secondaryCta={{ text: 'Browse Courses', link: '/courses' }}
       />
 
       <div id="contact-form" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 scroll-mt-24">

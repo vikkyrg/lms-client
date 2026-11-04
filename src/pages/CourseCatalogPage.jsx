@@ -101,7 +101,7 @@ const CourseCatalogPage = () => {
           'Hands-On Learning',
           'Career-Focused Training'
         ]}
-        primaryCta={{ text: 'Explore Courses', link: '#courses-grid' }}
+        primaryCta={{ text: 'Browse All Courses', link: '#courses-grid' }}
         secondaryCta={{ text: 'View Projects', link: '/projects' }}
       />
 

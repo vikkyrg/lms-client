@@ -19,7 +19,8 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import PaymentResultPage from './pages/PaymentResultPage';
-import { AboutPage, CareerSupportPage, LegalPage } from './pages/MarketingPages';
+import { AboutPage, CareerSupportPage } from './pages/MarketingPages';
+import LegalPage from './pages/LegalPage';
 import TestimonialsPage from './pages/TestimonialsPage';
 import FaqPage from './pages/FaqPage';
 import ProjectsPage from './pages/ProjectsPage';
@@ -62,6 +63,7 @@ function App() {
             <Route path="faq" element={<FaqPage />} />
             <Route path="faqs" element={<Navigate to="/faq" replace />} />
             <Route path="privacy-policy" element={<LegalPage type="privacy" />} />
+            <Route path="privacy" element={<Navigate to="/privacy-policy" replace />} />
             <Route path="terms" element={<LegalPage type="terms" />} />
             {/* Redirect /roadmap to /projects#roadmap-stages */}
             <Route path="roadmap" element={<Navigate to="/projects" replace />} />

@@ -236,7 +236,11 @@ const CareerSupportPage = () => {
       {/* 1. HERO SECTION (Redesigned with Balanced Content & Proportions) */}
       <PageHero
         badge="Career Development"
-        title="Career Preparation That Stays Practical"
+        title={
+          <>
+            Career Preparation <span className="text-[#3478F6]">That Stays Practical</span>
+          </>
+        }
         subtitle="Prepare for your next career opportunity with focused interview practice, technical problem-solving, professional resume guidance, and structured career preparation. Build the confidence to present your skills effectively in the technology industry."
         image={careerSupportImage}
         imageAlt="AutoOps School Practical Career Support and Interview Readiness"

@@ -6,7 +6,9 @@ import {
   CheckCircle2,
   Sparkles,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ArrowRight,
+  PlayCircle
 } from 'lucide-react';
 import HeroBackgroundWaves from '../components/HeroBackgroundWaves';
 import { AnimatedSection } from '../components/AnimatedSection';
@@ -159,13 +161,13 @@ const TestimonialsPage = () => {
         }
       `}</style>
 
-      {/* Hero Section with Sky Blue & Yellow Flowing Waves Background */}
-      <section className="relative bg-[#FFFCF6] text-[#344054] py-12 sm:py-16 md:py-20 min-h-[calc(100vh-5rem)] min-h-[calc(100svh-5rem)] flex items-center border-b border-[#F0EBE1] overflow-hidden">
-        <HeroBackgroundWaves variant="about" />
+      {/* Hero Section with Modern Blue & Brand Accent Waves Background */}
+      <section className="relative bg-[#F8FAFD] text-[#344054] py-12 sm:py-16 md:py-20 min-h-[calc(100vh-5rem)] min-h-[calc(100svh-5rem)] flex items-center border-b border-[#E5EDF6] overflow-hidden">
+        <HeroBackgroundWaves variant="testimonials" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center w-full my-auto space-y-6">
-          <div className="inline-flex items-center gap-2 bg-[#FFF2BF] border border-[#F4D36B]/70 text-[#142B50] px-4 py-1.5 rounded-full text-xs sm:text-[13px] font-bold tracking-wide shadow-2xs">
-            <Sparkles className="h-4 w-4 text-[#A67B10]" />
+          <div className="inline-flex items-center gap-2 bg-[#EBF3FE] border border-[#BFDBFE] text-[#1F70F7] px-4 py-1.5 rounded-full text-xs sm:text-[13px] font-bold tracking-wide shadow-2xs">
+            <Sparkles className="h-4 w-4 text-[#1F70F7]" />
             <span>Student Success Stories</span>
           </div>
 
@@ -188,6 +190,25 @@ const TestimonialsPage = () => {
               </div>
             ))}
           </div>
+
+          {/* Hero CTA Button */}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-3">
+            <a
+              href="#video-stories"
+              onClick={(e) => {
+                const el = document.getElementById('video-stories');
+                if (el) {
+                  e.preventDefault();
+                  el.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+              className="inline-flex items-center justify-center gap-2 bg-[#142B50] hover:bg-[#10223d] text-white text-xs sm:text-sm font-bold px-6 py-3 rounded-xl shadow-md transition-all duration-200 cursor-pointer group"
+            >
+              <PlayCircle className="w-4 h-4 text-[#FFD95A]" />
+              <span>Watch Student Stories</span>
+              <ArrowRight className="w-4 h-4 text-[#FFD95A] transition group-hover:translate-x-0.5" />
+            </a>
+          </div>
         </div>
       </section>
 
@@ -201,7 +222,8 @@ const TestimonialsPage = () => {
       {/* ========================================================================= */}
       {videos.length > 0 && (
         <div
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8 overflow-hidden"
+          id="video-stories"
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8 overflow-hidden scroll-mt-24"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >

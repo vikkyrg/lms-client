@@ -200,62 +200,24 @@ const CourseDetailsPage = () => {
       }
 
       try {
-        const orderRes = await api.post('/payments/create-order', { courseId: course._id });
-        if (orderRes.data.success && window.Razorpay && orderRes.data.order) {
-          const options = {
-            key: orderRes.data.keyId,
-            amount: orderRes.data.order.amount,
-            currency: orderRes.data.order.currency,
-            name: 'AutoOps School',
-            description: course.title,
-            order_id: orderRes.data.order.id,
-            handler: async (response) => {
-              try {
-                const verifyRes = await api.post('/payments/verify', {
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_signature: response.razorpay_signature,
-                  courseId: course._id
-                });
-                if (verifyRes.data.success) {
-                  setIsEnrolled(true);
-                  setEnrollmentStatus('pending_approval');
-                  setPaidNotice(true);
-                  setApprovalNoticeModal(true);
-                  setMessage('Your enrollment request has been successfully submitted. Your access to this course is pending admin approval.');
-                  setMessageKind('success');
-                }
-              } catch (vErr) {
-                showError(vErr.response?.data?.message || 'Payment verification failed');
-              }
-            },
-            prefill: {
-              name: user.name,
-              email: user.email,
-              contact: user.phone || ''
-            },
-            theme: {
-              color: '#142B50'
-            }
-          };
-          const rzp = new window.Razorpay(options);
-          rzp.open();
-        } else {
-          const freeReq = await api.post('/enrollments/free', { courseId: course._id });
-          if (freeReq.data.success) {
+        if (!free) {
+          // Paid course enrollment request (External / Manual payment verification workflow)
+          const paidReq = await api.post('/enrollments/paid', { courseId: course._id });
+          if (paidReq.data.success) {
             setIsEnrolled(true);
             setEnrollmentStatus('pending_approval');
-            setPaidNotice(false);
+            setPaidNotice(true);
             setApprovalNoticeModal(true);
-            setMessage('Your enrollment request has been successfully submitted. Your access to this course is pending admin approval.');
+            setMessage(
+              'Your enrollment request for this course has been submitted successfully. Our admin team will verify your payment and approve your enrollment.'
+            );
             setMessageKind('success');
+            return;
           }
-        }
-      } catch (payErr) {
-        const errMsg = payErr.response?.data?.message || '';
-        if (errMsg.includes('not configured') || errMsg.includes('unavailable')) {
-          const fallbackRes = await api.post('/enrollments/free', { courseId: course._id });
-          if (fallbackRes.data.success) {
+        } else {
+          // Free course enrollment request
+          const freeReq = await api.post('/enrollments/free', { courseId: course._id });
+          if (freeReq.data.success) {
             setIsEnrolled(true);
             setEnrollmentStatus('pending_approval');
             setPaidNotice(false);
@@ -265,7 +227,8 @@ const CourseDetailsPage = () => {
             return;
           }
         }
-        showError(errMsg || 'Payment request failed. Please try again.');
+      } catch (payErr) {
+        showError(payErr.response?.data?.message || 'Enrollment request failed. Please try again.');
       }
     } catch (err) {
       showError(
@@ -1127,13 +1090,39 @@ const CourseDetailsPage = () => {
                 <Clock className="w-8 h-8" />
               </div>
               <h3 className="text-xl sm:text-2xl font-black text-[#142B50] tracking-tight">
-                {paidNotice ? 'Payment Successful · Awaiting Approval' : 'Enrolled · Awaiting Approval'}
+                {paidNotice ? 'Enrollment Request Submitted' : 'Enrolled · Awaiting Approval'}
               </h3>
               <p className="text-sm text-slate-600 leading-relaxed">
                 {paidNotice
-                  ? 'Your payment was verified by our server. Your enrollment is now awaiting Admin approval, and you will receive access once it is approved.'
+                  ? 'Your enrollment request for this course has been submitted successfully. Our admin team will verify your payment and approve your enrollment.'
                   : 'You are enrolled in this free course. Your enrollment is awaiting Admin approval, and you will receive access once it is approved.'}
               </p>
+
+              {paidNotice && (
+                <div className="bg-slate-50 border border-slate-100 rounded-2xl p-4 text-left space-y-2 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500 font-medium">Course:</span>
+                    <strong className="text-slate-900 font-bold text-right truncate max-w-[220px]">{course.title}</strong>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500 font-medium">Course Price:</span>
+                    <strong className="text-[#1F70F7] font-extrabold">{formatCoursePrice(course)}</strong>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500 font-medium">Payment Verification:</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                      Pending
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500 font-medium">Enrollment Status:</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-blue-100 text-blue-900 border border-blue-200">
+                      Awaiting Admin Approval
+                    </span>
+                  </div>
+                </div>
+              )}
+
               <div className="p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs text-slate-600 font-medium">
                 Upon approval, you will receive full access to all video lessons and study materials for{' '}
                 <strong className="text-slate-900">3 calendar months</strong>.
