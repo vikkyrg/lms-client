@@ -6,8 +6,8 @@ import StudentTestimonials from '../components/StudentTestimonials';
 import StudentVideoTestimonials from '../components/StudentVideoTestimonials';
 import { AnimatedSection } from '../components/AnimatedSection';
 import RevealGroup from '../components/RevealGroup';
-import bgHero from '../assests/bg5.png';
-import bgmHero from '../assests/bgm5.png';
+import bgHero from '../assests/bg.png';
+import bgmHero from '../assests/bgm.png';
 import whyLearnImg from '../assests/why-learn.jpg';
 import {
   GraduationCap,
@@ -430,8 +430,8 @@ const HomePage = () => {
                 </div>
                 )}
 
-                {/* 3 Compact Learning Benefits */}
-                <div className={`hero-item${heroReady ? ' hero-visible' : ''} pt-4 border-t border-[#EAE4D7] grid grid-cols-3 gap-4 max-w-xl`}
+                {/* 2 Compact Learning Benefits */}
+                <div className={`hero-item${heroReady ? ' hero-visible' : ''} pt-4 border-t border-[#EAE4D7] grid grid-cols-2 gap-4 max-w-md`}
                   style={{ animationDelay: '750ms' }}>
                   <div className="flex items-center gap-2.5">
                     <div className="w-9 h-9 rounded-xl bg-[#EAF2FC] text-[#2B6FE0] flex items-center justify-center shrink-0 border border-[#D5E4F7]">
@@ -449,15 +449,6 @@ const HomePage = () => {
                     <div className="min-w-0">
                       <div className="text-sm font-bold text-[#12294B] leading-tight truncate">Hands-on</div>
                       <div className="text-[11px] text-[#667085] leading-tight">Projects</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-[#EAF2FC] text-[#2B6FE0] flex items-center justify-center shrink-0 border border-[#D5E4F7]">
-                      <BarChart3 className="h-4 w-4 stroke-[2.2]" />
-                    </div>
-                    <div className="min-w-0">
-                      <div className="text-sm font-bold text-[#12294B] leading-tight truncate">Career</div>
-                      <div className="text-[11px] text-[#667085] leading-tight">Preparation</div>
                     </div>
                   </div>
                 </div>
