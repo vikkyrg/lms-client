@@ -111,16 +111,24 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <Link
                   to="/login"
-                  className="text-sm font-medium text-[#172F56] hover:text-[#3478F6] px-3 py-2 transition-colors cursor-pointer"
+                  className={`text-sm px-4 py-2 rounded-full transition-all cursor-pointer ${
+                    location.pathname === '/login'
+                      ? 'font-bold text-[#172F56] bg-[#EAF3FF] border border-[#BFDBFE] shadow-2xs'
+                      : 'font-medium text-[#172F56] hover:text-[#3478F6] hover:bg-[#EAF3FF]/60'
+                  }`}
                 >
                   Log in
                 </Link>
                 <Link
                   to="/register"
-                  className="text-sm font-semibold text-white bg-[#3478F6] hover:bg-[#2563EB] px-5 py-2.5 rounded-full shadow-xs hover:shadow-sm transition-all duration-200 cursor-pointer"
+                  className={`text-sm px-5 py-2.5 rounded-full shadow-xs hover:shadow-sm transition-all duration-200 cursor-pointer ${
+                    location.pathname === '/register'
+                      ? 'font-bold text-white bg-[#172F56] ring-2 ring-[#3478F6]'
+                      : 'font-semibold text-white bg-[#3478F6] hover:bg-[#2563EB]'
+                  }`}
                 >
                   Sign up
                 </Link>
@@ -188,14 +196,22 @@ const Navbar = () => {
                 <Link
                   to="/login"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-center py-2.5 rounded-full font-medium text-[#172F56] text-xs hover:bg-gray-100 transition"
+                  className={`text-center py-2.5 rounded-full text-xs transition ${
+                    location.pathname === '/login'
+                      ? 'font-bold text-[#172F56] bg-[#EAF3FF] border border-[#BFDBFE]'
+                      : 'font-medium text-[#172F56] hover:bg-gray-100'
+                  }`}
                 >
                   Log in
                 </Link>
                 <Link
                   to="/register"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="text-center py-2.5 bg-[#3478F6] hover:bg-[#2563EB] text-white rounded-full font-semibold text-xs shadow-xs transition"
+                  className={`text-center py-2.5 rounded-full text-xs shadow-xs transition ${
+                    location.pathname === '/register'
+                      ? 'font-bold text-white bg-[#172F56] ring-2 ring-[#3478F6]'
+                      : 'font-semibold bg-[#3478F6] hover:bg-[#2563EB] text-white'
+                  }`}
                 >
                   Sign up
                 </Link>
