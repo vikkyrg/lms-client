@@ -6,8 +6,8 @@ import StudentTestimonials from '../components/StudentTestimonials';
 import StudentVideoTestimonials from '../components/StudentVideoTestimonials';
 import { AnimatedSection } from '../components/AnimatedSection';
 import RevealGroup from '../components/RevealGroup';
-import bgHero from '../assests/bg.png';
-import bgmHero from '../assests/bgm.png';
+import bgHero from '../assests/bg5.png';
+import bgmHero from '../assests/bgm5.png';
 import whyLearnImg from '../assests/why-learn.jpg';
 import {
   GraduationCap,
@@ -499,7 +499,7 @@ const HomePage = () => {
               <h1 className={`hero-item${heroReady ? ' hero-visible' : ''} text-[21px] min-[360px]:text-[23px] min-[390px]:text-[25px] font-black text-[#12294B] tracking-tight leading-[1.18]`}
                 style={{ animationDelay: '150ms' }}>
                 Build Practical <span className="text-[#2B6FE0]">IT Skills.</span> <br />
-                Prepare for <span className="text-[#E5A800]">Your Career.</span>
+                Prepare for <span className="text-[#D1316F]">Your Career.</span>
               </h1>
 
               {/* Subheading / Description */}
