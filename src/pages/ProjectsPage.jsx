@@ -164,7 +164,6 @@ const ProjectsPage = () => {
           { text: 'Practical Engineering Skills', icon: CheckCircle2 }
         ]}
         primaryCta={{ text: 'Explore Projects', link: '#projects-catalog' }}
-        secondaryCta={{ text: 'View Course Skills', link: '/courses' }}
       />
 
       {/* ========================================================================= */}

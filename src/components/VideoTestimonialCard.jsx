@@ -155,32 +155,32 @@ const VideoTestimonialCard = ({
       </div>
 
       {/* Testimonial Card Details Footer */}
-      <div className="p-4 flex-1 flex flex-col justify-between bg-white">
+      <div className="p-[18px] sm:p-5 flex-1 flex flex-col justify-between bg-white">
         <div>
-          <h3 className="font-bold text-[#142B50] text-sm group-hover:text-[#2B6FE0] transition truncate">
+          <h3 className="font-bold text-[#172F56] text-[17px] sm:text-[18px] tracking-tight group-hover:text-[#2B6FE0] transition truncate leading-snug">
             {item.studentName}
           </h3>
-          <p className="text-xs font-semibold text-[#667085] mt-0.5 truncate">
+          <p className="text-[14px] sm:text-[15px] font-medium text-[#64748B] mt-1 truncate">
             {item.designation || item.courseName || 'Alumni'}
           </p>
           {item.description && (
-            <p className="text-xs text-[#475467] mt-2 leading-relaxed line-clamp-2">
+            <p className="text-xs sm:text-sm text-[#475467] mt-2.5 leading-relaxed line-clamp-2">
               {item.description}
             </p>
           )}
         </div>
 
-        <div className="pt-3 mt-3 border-t border-gray-100 flex items-center justify-between">
+        <div className="pt-3.5 mt-4 border-t border-gray-100 flex items-center justify-between">
           <button
             type="button"
             onClick={handleStartPlay}
-            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#142B50] hover:text-[#2B6FE0] transition cursor-pointer"
+            className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-[#172F56] hover:text-[#2B6FE0] transition cursor-pointer group/link"
           >
-            <span>{isPlaying ? 'Playing' : 'Watch Story'}</span>
-            <Play className="w-3.5 h-3.5 fill-current" />
+            <span className="transition-colors group-hover/link:text-[#2B6FE0]">{isPlaying ? 'Playing' : 'Watch Story'}</span>
+            <Play className="w-3.5 h-3.5 fill-current transition-colors group-hover/link:text-[#2B6FE0]" />
           </button>
           {item.isFeatured && (
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#A67B10] bg-[#FFF2BF] px-2 py-0.5 rounded-full border border-[#F4D36B]/60">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#A67B10] bg-[#FFF2BF] px-2.5 py-0.5 rounded-full border border-[#F4D36B]/60">
               Featured
             </span>
           )}
