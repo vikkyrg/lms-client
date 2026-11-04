@@ -47,7 +47,7 @@ const ContactPage = () => {
 
       <div id="contact-form" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 scroll-mt-24">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12">
-          
+
           {/* Left Column: Contact Cards */}
           <div className="lg:col-span-5 space-y-6">
             <AnimatedSection direction="up" delay={50}>
@@ -123,7 +123,7 @@ const ContactPage = () => {
             <AnimatedSection direction="up" delay={120} className="bg-white rounded-3xl p-8 sm:p-10 border border-gray-200/90 shadow-xl space-y-6">
               <div>
                 <span className="text-xs uppercase font-extrabold tracking-widest text-[#3F6FA8] block mb-1">
-                  Online Inquiry
+                  Online Enquiry
                 </span>
                 <h3 className="text-2xl font-extrabold text-[#102747]">Send an Enquiry</h3>
                 <p className="text-xs sm:text-sm text-gray-500 mt-1">

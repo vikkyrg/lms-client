@@ -217,11 +217,11 @@ const FaqPage = () => {
           'Career Guidance'
         ]}
         primaryCta={{ text: 'Browse FAQs', link: '#faq-search-section' }}
-        secondaryCta={{ text: 'Ask a Question', link: '/contact?subject=Course+Inquiry#contact-form' }}
+        secondaryCta={{ text: 'Ask a Question', link: '/contact?subject=Course+Enquiry#contact-form' }}
       />
 
       <div id="faq-search-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 scroll-mt-24">
-        
+
         {/* Search Input Box */}
         <AnimatedSection direction="up" delay={50} className="max-w-2xl mx-auto mb-8">
           <div className="relative">
@@ -246,11 +246,10 @@ const FaqPage = () => {
                 key={category}
                 type="button"
                 onClick={() => setSelectedCategory(category)}
-                className={`whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
-                  isSelected
+                className={`whitespace-nowrap flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${isSelected
                     ? 'bg-[#173563] text-white shadow-xs'
                     : 'bg-white text-gray-600 hover:text-[#173563] hover:bg-gray-50 border border-gray-200'
-                }`}
+                  }`}
               >
                 {Icon && <Icon className="w-3.5 h-3.5 stroke-[2.2]" />}
                 <span>{category}</span>
@@ -320,11 +319,10 @@ const FaqPage = () => {
                       return (
                         <div
                           key={id}
-                          className={`bg-white rounded-2xl border transition-all duration-300 shadow-2xs overflow-hidden ${
-                            isOpen
+                          className={`bg-white rounded-2xl border transition-all duration-300 shadow-2xs overflow-hidden ${isOpen
                               ? 'border-[#173563]/30 shadow-xs ring-1 ring-[#173563]/10'
                               : 'border-gray-200 hover:border-gray-300'
-                          }`}
+                            }`}
                         >
                           <button
                             type="button"
@@ -336,11 +334,10 @@ const FaqPage = () => {
                               {faq.question}
                             </span>
                             <div
-                              className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 ${
-                                isOpen
+                              className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform duration-300 ${isOpen
                                   ? 'bg-[#FFF2BF] text-[#102747] rotate-180'
                                   : 'bg-gray-50 text-gray-400'
-                              }`}
+                                }`}
                             >
                               <ChevronDown className="w-4 h-4 stroke-[2.2]" />
                             </div>

@@ -14,7 +14,7 @@ const exploreLinks = [
 ];
 
 const policyLinks = [
-  { name: 'Contact Us / Inquiry', path: '/contact' },
+  { name: 'Contact Us / Enquiry', path: '/contact' },
   { name: 'Terms of Service', path: '/terms' },
   { name: 'Privacy Policy', path: '/privacy-policy' }
 ];

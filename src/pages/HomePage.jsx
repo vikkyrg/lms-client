@@ -376,7 +376,7 @@ const HomePage = () => {
                 <h1 className={`hero-item${heroReady ? ' hero-visible' : ''} text-[3.35rem] xl:text-[3.5rem] font-black text-[#12294B] tracking-[-0.03em] leading-[1.14]`}
                   style={{ animationDelay: '150ms' }}>
                   Build Practical <span className="text-[#2B6FE0]">IT Skills.</span> <br />
-                  Prepare for <span className="text-[#F8D568]">Your Career.</span>
+                  Prepare for <span className="text-[#D1316F]">Your Career.</span>
                 </h1>
 
                 {/* Subheading */}
@@ -620,7 +620,7 @@ const HomePage = () => {
                 className={`text-2xl sm:text-3xl lg:text-[2.35rem] font-extrabold text-[#173563] tracking-tight leading-[1.2] why-anim-item why-content-anim${whyVisible ? ' why-visible' : ''}`}
                 style={{ animationDelay: '300ms' }}
               >
-                Learn In-Demand Skills. Build <span className="text-[#C99718] font-black">Real-World Expertise.</span>
+                Learn In-Demand Skills. Build <span className="text-[#2B6FE0] font-black">Real-World Expertise.</span>
               </h2>
 
               {/* Description: Slate Text (#344054) */}

@@ -22,6 +22,7 @@ import HeroBackgroundWaves from '../components/HeroBackgroundWaves';
 import { AnimatedSection } from '../components/AnimatedSection';
 import RevealGroup from '../components/RevealGroup';
 import aboutHeroImg from '../assests/about.png';
+import founderImg from '../assests/foundar.png';
 
 const trainingMethodology = [
   {
@@ -174,7 +175,79 @@ export const AboutPage = () => (
         </RevealGroup>
       </section>
 
-      {/* Vision & Mission */}
+      {/* 3. Founder & Leadership — Premium Spotlight */}
+      <section className="relative overflow-hidden bg-white rounded-3xl border border-[#E2E8F0] shadow-[0_4px_24px_rgba(20,43,80,0.06)] p-6 sm:p-10 lg:p-12">
+        {/* Subtle decorative background shapes */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-[#EAF3FF]/70 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-[#EFF6FF]/60 rounded-full blur-2xl pointer-events-none -ml-16 -mb-16" />
+
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          
+          {/* Left Column: Founder Profile Card / Frame */}
+          <div className="lg:col-span-4 flex flex-col items-center text-center">
+            <AnimatedSection direction="up" delay={100} className="w-full max-w-[280px]">
+              <div className="relative mx-auto rounded-3xl p-3 bg-gradient-to-b from-[#EBF3FE] to-white border border-[#DCEBFF] shadow-xs">
+                {/* Elegant Navy Frame with Founder Image */}
+                <div className="relative w-full aspect-[4/4.5] rounded-2xl bg-[#172F56] overflow-hidden shadow-inner border border-[#1F3D6D] group">
+                  <img
+                    src={founderImg}
+                    alt="Bhoomika R H - Founder, AutoOps School"
+                    className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
+
+                {/* Profile Meta Below Image Frame */}
+                <div className="pt-3.5 pb-1">
+                  <h4 className="text-base sm:text-lg font-extrabold text-[#172F56] tracking-tight">
+                    Bhoomika R H
+                  </h4>
+                  <p className="text-xs font-semibold text-[#3478F6] uppercase tracking-wider mt-0.5">
+                    Founder, AutoOps School
+                  </p>
+                </div>
+              </div>
+            </AnimatedSection>
+          </div>
+
+          {/* Right Column: Founder Introduction & Vision */}
+          <div className="lg:col-span-8 space-y-5">
+            <AnimatedSection direction="up" delay={200} className="space-y-2">
+              <span className="text-[11px] sm:text-xs uppercase tracking-widest font-extrabold text-[#3478F6] inline-flex items-center gap-1.5">
+                <span className="w-2 h-0.5 bg-[#3478F6] rounded-full" />
+                MEET OUR FOUNDER
+              </span>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#172F56] tracking-tight leading-tight">
+                Leadership That Inspires Learning
+              </h2>
+            </AnimatedSection>
+
+            {/* Founder Biography */}
+            <AnimatedSection direction="up" delay={250} className="space-y-3.5 text-sm sm:text-base text-[#475467] leading-relaxed">
+              <p>
+                AutoOps School was founded by <strong className="text-[#172F56] font-bold">Bhoomika R H</strong> with the mission of bridging the gap between theoretical knowledge and practical IT skills.
+              </p>
+              <p>
+                Under her leadership, the institute is committed to structured technical education, hands-on learning, real-world project problem-solving, and career-focused preparation for aspiring IT professionals.
+              </p>
+            </AnimatedSection>
+
+            {/* Highlighted Vision Statement */}
+            <AnimatedSection direction="up" delay={300}>
+              <div className="p-4 sm:p-5 rounded-2xl bg-[#EAF3FF] border-l-4 border-[#3478F6] shadow-2xs">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[#3478F6] block mb-1">
+                  Core Founding Vision
+                </span>
+                <p className="text-sm sm:text-base font-bold text-[#172F56] leading-snug">
+                  "Bridging the gap between theoretical knowledge and practical IT skills."
+                </p>
+              </div>
+            </AnimatedSection>
+          </div>
+
+        </div>
+      </section>
+
+      {/* 4. Vision & Mission */}
       <AnimatedSection direction="up" delay={100} className="grid md:grid-cols-2 gap-8">
         <div className="bg-white rounded-2xl border border-gray-200/90 p-8 shadow-xs hover:shadow-md transition duration-300">
           <div className="w-12 h-12 rounded-xl bg-[#EAF2FC] text-[#2B6FE0] flex items-center justify-center mb-5 border border-[#D5E4F7]">
@@ -216,7 +289,7 @@ export const AboutPage = () => (
         </div>
       </AnimatedSection>
 
-      {/* Target Learners: Who Can Join — warm ivory panel, staggered audience cards */}
+      {/* 5. Target Learners: Who Can Join — warm ivory panel, staggered audience cards */}
       <section className="rounded-[24px] bg-[#FFFCF5] border border-[#F1DCA8] p-8 sm:p-10 shadow-[0_6px_24px_rgba(20,47,85,0.05)]">
         <AnimatedSection direction="up" delay={50}>
           <span className="text-[11px] sm:text-xs uppercase tracking-[0.18em] font-extrabold text-[#3478F6] block mb-1.5">
@@ -249,7 +322,7 @@ export const AboutPage = () => (
         </RevealGroup>
       </section>
 
-      {/* Training Methodology — white panel, numbered pedagogy cards with staggered reveal */}
+      {/* 6. Training Methodology — white panel, numbered pedagogy cards with staggered reveal */}
       <section id="training-methodology" className="bg-white rounded-[24px] border border-[#E2E8F0] p-8 sm:p-10 shadow-[0_6px_24px_rgba(20,47,85,0.05)] scroll-mt-24">
         <AnimatedSection direction="up" delay={50}>
           <span className="text-[11px] sm:text-xs uppercase tracking-[0.18em] font-extrabold text-[#3478F6] block mb-1.5">
@@ -284,26 +357,6 @@ export const AboutPage = () => (
           })}
         </RevealGroup>
       </section>
-
-      {/* Founder and Leadership */}
-      <AnimatedSection direction="up" delay={250} className="bg-white rounded-2xl border border-gray-200/90 p-8 sm:p-10 shadow-xs">
-        <span className="text-xs uppercase tracking-widest font-extrabold text-[#3F6FA8] block mb-1">
-          Leadership
-        </span>
-        <h2 className="text-xl sm:text-2xl font-extrabold text-[#173563]">Founder & Leadership</h2>
-        <div className="mt-6 flex flex-col sm:flex-row items-start gap-5">
-          <div className="w-16 h-16 rounded-2xl bg-[#173563] text-[#F4D36B] font-black flex items-center justify-center text-2xl shrink-0 shadow-md">
-            B
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-[#102747]">Bhoomika R H</h3>
-            <p className="text-xs text-[#2B6FE0] font-bold uppercase tracking-wider">Founder, AutoOps School</p>
-            <p className="mt-3 text-sm sm:text-base text-gray-600 leading-relaxed max-w-3xl">
-              AutoOps School was founded by Bhoomika R H with the mission of bridging the gap between theoretical knowledge and practical IT skills. Under her leadership, the institute is committed to structured technical education, hands-on learning, real-world project problem-solving, and career-focused preparation for aspiring IT professionals.
-            </p>
-          </div>
-        </div>
-      </AnimatedSection>
 
     </div>
 

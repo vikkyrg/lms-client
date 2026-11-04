@@ -153,10 +153,9 @@ body {
   max-width: none;
   object-fit: cover;
   object-position: center;
-  transform: scale(1.4);
-  transition: transform 300ms;
+  transition: transform 300ms ease;
 }
 
 .group:hover .video-testimonial-thumbnail {
-  transform: scale(1.44);
+  transform: scale(1.03);
 }

@@ -83,25 +83,29 @@ const StudentVideoTestimonials = () => {
   }, []);
 
   // Card width calculation:
-  // Desktop (>= 1024px): 3 complete cards across with 24px gap
-  // Tablet (640px - 1023px): 2 complete cards with 24px gap
-  // Mobile (< 640px): 1 card
+  // Desktop (>= 1200px): 4 compact cards with 20px gap (approx 280-300px each)
+  // Large tablet (1024px - 1199px): 3 cards with 20px gap
+  // Tablet (640px - 1023px): 2 cards with 16px gap
+  // Mobile (< 640px): 1 card (approx 280-300px, responsive)
   const cardWidth = useMemo(() => {
-    if (!containerWidth) return 320;
-    if (containerWidth >= 1024) {
-      return Math.floor((containerWidth - 48) / 3);
+    if (!containerWidth) return 290;
+    if (containerWidth >= 1200) {
+      return Math.floor((containerWidth - 60) / 4); // 4 cards with 3 gaps of 20px
+    }
+    if (containerWidth >= 960) {
+      return Math.floor((containerWidth - 40) / 3); // 3 cards with 2 gaps of 20px
     }
     if (containerWidth >= 640) {
-      return Math.floor((containerWidth - 24) / 2);
+      return Math.floor((containerWidth - 16) / 2); // 2 cards with 1 gap of 16px
     }
-    return Math.min(320, Math.floor(containerWidth * 0.88));
+    return Math.min(295, Math.floor(containerWidth * 0.88));
   }, [containerWidth]);
 
-  // Seamless looping duplicated list (at least 2 identical sets of >= 3 items)
+  // Seamless looping duplicated list (at least 2 identical sets of >= 4 items)
   const { displayItems, singleSetCount } = useMemo(() => {
     if (!videos || videos.length === 0) return { displayItems: [], singleSetCount: 0 };
     let baseList = [...videos];
-    while (baseList.length < 3) {
+    while (baseList.length < 4) {
       baseList = [...baseList, ...videos];
     }
     return {
@@ -196,9 +200,9 @@ const StudentVideoTestimonials = () => {
         }
       `}</style>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
         {/* Header & Controls */}
-        <AnimatedSection direction="up" delay={50} className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+        <AnimatedSection direction="up" delay={50} className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-4">
           <div>
             <div className="inline-flex items-center gap-2 bg-[#EAF2FC] text-[#12294B] border border-[#D0E2F6] text-xs font-bold px-3 py-1 rounded-full tracking-wider uppercase mb-2 shadow-2xs">
               <Sparkles className="w-3.5 h-3.5 text-[#2B6FE0]" />
@@ -207,7 +211,7 @@ const StudentVideoTestimonials = () => {
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#173563] tracking-tight leading-tight">
               Hear From Our <span className="text-[#2B6FE0]">Successful Students</span>
             </h2>
-            <p className="mt-2 text-sm text-[#475467] leading-relaxed max-w-2xl">
+            <p className="mt-1.5 text-sm text-[#475467] leading-relaxed max-w-2xl">
               Watch real stories from learners who leveled up their skills and transformed their careers with AutoOps School.
             </p>
           </div>
@@ -225,10 +229,10 @@ const StudentVideoTestimonials = () => {
               onPointerCancel={() => setIsNavigating(false)}
               onKeyDown={() => setIsNavigating(true)}
               onKeyUp={() => setIsNavigating(false)}
-              className="w-10 h-10 rounded-xl bg-white border border-gray-200 text-[#173563] hover:text-[#2B6FE0] hover:border-[#2B6FE0]/40 flex items-center justify-center shadow-xs hover:shadow-sm transition cursor-pointer"
+              className="w-9 h-9 rounded-xl bg-white border border-gray-200 text-[#173563] hover:text-[#2B6FE0] hover:border-[#2B6FE0]/40 flex items-center justify-center shadow-xs hover:shadow-sm transition cursor-pointer"
               aria-label="Previous video"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
             <button
               type="button"
@@ -241,10 +245,10 @@ const StudentVideoTestimonials = () => {
               onPointerCancel={() => setIsNavigating(false)}
               onKeyDown={() => setIsNavigating(true)}
               onKeyUp={() => setIsNavigating(false)}
-              className="w-10 h-10 rounded-xl bg-white border border-gray-200 text-[#173563] hover:text-[#2B6FE0] hover:border-[#2B6FE0]/40 flex items-center justify-center shadow-xs hover:shadow-sm transition cursor-pointer"
+              className="w-9 h-9 rounded-xl bg-white border border-gray-200 text-[#173563] hover:text-[#2B6FE0] hover:border-[#2B6FE0]/40 flex items-center justify-center shadow-xs hover:shadow-sm transition cursor-pointer"
               aria-label="Next video"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4" />
             </button>
           </div>
         </AnimatedSection>
@@ -257,7 +261,7 @@ const StudentVideoTestimonials = () => {
           className="w-full overflow-hidden select-none"
         >
           <div
-            className="animate-video-ticker flex items-stretch gap-6"
+            className="animate-video-ticker flex items-stretch gap-5"
             style={{
               width: 'max-content',
               animationPlayState: isPaused ? 'paused' : 'running'

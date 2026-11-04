@@ -78,25 +78,29 @@ const TestimonialsPage = () => {
   }, []);
 
   // Card width calculation:
-  // Desktop (>= 1024px): 3 complete cards across with 24px gap
-  // Tablet (640px - 1023px): 2 complete cards with 24px gap
-  // Mobile (< 640px): 1 card
+  // Desktop (>= 1200px): 4 compact cards with 20px gap (approx 280-300px each)
+  // Large tablet (1024px - 1199px): 3 cards with 20px gap
+  // Tablet (640px - 1023px): 2 cards with 16px gap
+  // Mobile (< 640px): 1 card (approx 280-295px)
   const cardWidth = useMemo(() => {
-    if (!containerWidth) return 320;
-    if (containerWidth >= 1024) {
-      return Math.floor((containerWidth - 48) / 3);
+    if (!containerWidth) return 290;
+    if (containerWidth >= 1200) {
+      return Math.floor((containerWidth - 60) / 4);
+    }
+    if (containerWidth >= 960) {
+      return Math.floor((containerWidth - 40) / 3);
     }
     if (containerWidth >= 640) {
-      return Math.floor((containerWidth - 24) / 2);
+      return Math.floor((containerWidth - 16) / 2);
     }
-    return Math.min(320, Math.floor(containerWidth * 0.88));
+    return Math.min(295, Math.floor(containerWidth * 0.88));
   }, [containerWidth]);
 
-  // Seamless looping duplicated list (at least 2 identical sets of >= 3 items)
+  // Seamless looping duplicated list (at least 2 identical sets of >= 4 items)
   const { displayItems, singleSetCount } = useMemo(() => {
     if (!videos || videos.length === 0) return { displayItems: [], singleSetCount: 0 };
     let baseList = [...videos];
-    while (baseList.length < 3) {
+    while (baseList.length < 4) {
       baseList = [...baseList, ...videos];
     }
     return {
@@ -223,7 +227,7 @@ const TestimonialsPage = () => {
       {videos.length > 0 && (
         <div
           id="video-stories"
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-8 overflow-hidden scroll-mt-24"
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 space-y-6 overflow-hidden scroll-mt-24"
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
         >
@@ -249,10 +253,10 @@ const TestimonialsPage = () => {
                 onPointerCancel={() => setIsNavigating(false)}
                 onKeyDown={() => setIsNavigating(true)}
                 onKeyUp={() => setIsNavigating(false)}
-                className="w-10 h-10 rounded-xl bg-white border border-gray-200 text-[#142B50] hover:text-[#3478F6] hover:border-[#3478F6]/40 flex items-center justify-center shadow-xs transition cursor-pointer"
+                className="w-9 h-9 rounded-xl bg-white border border-gray-200 text-[#142B50] hover:text-[#3478F6] hover:border-[#3478F6]/40 flex items-center justify-center shadow-xs transition cursor-pointer"
                 aria-label="Previous video"
               >
-                <ChevronLeft className="w-5 h-5" />
+                <ChevronLeft className="w-4 h-4" />
               </button>
               <button
                 type="button"
@@ -265,10 +269,10 @@ const TestimonialsPage = () => {
                 onPointerCancel={() => setIsNavigating(false)}
                 onKeyDown={() => setIsNavigating(true)}
                 onKeyUp={() => setIsNavigating(false)}
-                className="w-10 h-10 rounded-xl bg-white border border-gray-200 text-[#142B50] hover:text-[#3478F6] hover:border-[#3478F6]/40 flex items-center justify-center shadow-xs transition cursor-pointer"
+                className="w-9 h-9 rounded-xl bg-white border border-gray-200 text-[#142B50] hover:text-[#3478F6] hover:border-[#3478F6]/40 flex items-center justify-center shadow-xs transition cursor-pointer"
                 aria-label="Next video"
               >
-                <ChevronRight className="w-5 h-5" />
+                <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </AnimatedSection>
@@ -281,7 +285,7 @@ const TestimonialsPage = () => {
             className="w-full overflow-hidden select-none"
           >
             <div
-              className="animate-video-ticker flex items-stretch gap-6"
+              className="animate-video-ticker flex items-stretch gap-5"
               style={{
                 width: 'max-content',
                 animationPlayState: isPaused ? 'paused' : 'running'

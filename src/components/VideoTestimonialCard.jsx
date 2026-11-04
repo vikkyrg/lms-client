@@ -85,8 +85,8 @@ const VideoTestimonialCard = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col group h-full select-none">
-      <div className="relative aspect-[3/4] max-h-[450px] w-full overflow-hidden bg-slate-900 rounded-t-2xl">
+    <div className="bg-white rounded-[15px] border border-gray-200 overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col group h-full select-none">
+      <div className="relative h-[320px] sm:h-[340px] w-full overflow-hidden bg-slate-900 rounded-t-[15px]">
         {isPlaying ? (
           isEmbed ? (
             <iframe
@@ -133,12 +133,12 @@ const VideoTestimonialCard = ({
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/25 pointer-events-none" />
 
             {/* Top Badges */}
-            <div className="absolute top-3 left-3 bg-[#173563]/90 backdrop-blur-xs text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 pointer-events-none">
+            <div className="absolute top-2.5 left-2.5 bg-[#173563]/90 backdrop-blur-xs text-white text-[10.5px] font-bold px-2 py-0.5 rounded-full border border-white/20 pointer-events-none">
               Student Story
             </div>
 
             {item.duration > 0 && (
-              <div className="absolute top-3 right-3 bg-black/75 backdrop-blur-xs text-white text-[11px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 pointer-events-none">
+              <div className="absolute top-2.5 right-2.5 bg-black/75 backdrop-blur-xs text-white text-[10.5px] font-semibold px-2 py-0.5 rounded-md flex items-center gap-1 pointer-events-none">
                 <Clock className="w-3 h-3 text-[#F4D36B]" />
                 <span>{formatDuration(item.duration)}</span>
               </div>
@@ -146,41 +146,36 @@ const VideoTestimonialCard = ({
 
             {/* Centered Play / Replay Action Button */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-13 h-13 rounded-full bg-[#F4D36B] group-hover:bg-[#ebd068] text-[#102747] flex items-center justify-center shadow-lg transition-all duration-200 group-hover:scale-110">
-                <Play className="w-6 h-6 fill-current ml-0.5" />
+              <div className="w-11 h-11 rounded-full bg-[#F4D36B] group-hover:bg-[#ebd068] text-[#102747] flex items-center justify-center shadow-lg transition-all duration-200 group-hover:scale-110">
+                <Play className="w-5 h-5 fill-current ml-0.5" />
               </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* Testimonial Card Details Footer */}
-      <div className="p-[18px] sm:p-5 flex-1 flex flex-col justify-between bg-white">
+      {/* Testimonial Card Details Footer: compact height (~85-95px) */}
+      <div className="p-3.5 sm:p-4 flex-1 flex flex-col justify-between bg-white">
         <div>
-          <h3 className="font-bold text-[#172F56] text-[17px] sm:text-[18px] tracking-tight group-hover:text-[#2B6FE0] transition truncate leading-snug">
+          <h3 className="font-bold text-[#172F56] text-[16px] sm:text-[17px] tracking-tight group-hover:text-[#2B6FE0] transition truncate leading-snug">
             {item.studentName}
           </h3>
-          <p className="text-[14px] sm:text-[15px] font-medium text-[#64748B] mt-1 truncate">
+          <p className="text-[13px] sm:text-[13.5px] font-medium text-[#64748B] mt-0.5 truncate">
             {item.designation || item.courseName || 'Alumni'}
           </p>
-          {item.description && (
-            <p className="text-xs sm:text-sm text-[#475467] mt-2.5 leading-relaxed line-clamp-2">
-              {item.description}
-            </p>
-          )}
         </div>
 
-        <div className="pt-3.5 mt-4 border-t border-gray-100 flex items-center justify-between">
+        <div className="pt-2.5 mt-2.5 border-t border-gray-100 flex items-center justify-between">
           <button
             type="button"
             onClick={handleStartPlay}
-            className="inline-flex items-center gap-1.5 text-[14px] font-semibold text-[#172F56] hover:text-[#2B6FE0] transition cursor-pointer group/link"
+            className="inline-flex items-center gap-1 text-[13px] font-semibold text-[#172F56] hover:text-[#2B6FE0] transition cursor-pointer group/link"
           >
             <span className="transition-colors group-hover/link:text-[#2B6FE0]">{isPlaying ? 'Playing' : 'Watch Story'}</span>
-            <Play className="w-3.5 h-3.5 fill-current transition-colors group-hover/link:text-[#2B6FE0]" />
+            <Play className="w-3 h-3 fill-current transition-colors group-hover/link:text-[#2B6FE0]" />
           </button>
           {item.isFeatured && (
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#A67B10] bg-[#FFF2BF] px-2.5 py-0.5 rounded-full border border-[#F4D36B]/60">
+            <span className="text-[9.5px] font-bold uppercase tracking-wider text-[#A67B10] bg-[#FFF2BF] px-2 py-0.5 rounded-full border border-[#F4D36B]/60">
               Featured
             </span>
           )}

@@ -49,9 +49,9 @@ export const LegalPage = ({ type }) => {
               : 'Please review the rules, terms, and guidelines governing your enrollment, course materials, and participation at AutoOps School.'}
           </p>
 
-          <div className="pt-1 text-[11px] sm:text-xs text-slate-400 font-medium">
+          {/* <div className="pt-1 text-[11px] sm:text-xs text-slate-400 font-medium">
             Last Updated: November 2026 · Effective Immediately
-          </div>
+          </div> */}
         </div>
       </div>
 
@@ -98,7 +98,7 @@ export const LegalPage = ({ type }) => {
                     <li>Granting student portal access and tracking course completion milestones.</li>
                     <li>Sending critical schedule updates, mentor announcements, and enrollment confirmations.</li>
                     <li>Issuing verifiable course completion certificates upon successful program completion.</li>
-                    <li>Providing technical assistance and answering admissions inquiries.</li>
+                    <li>Providing technical assistance and answering admissions enquiries.</li>
                   </ul>
                 </div>
 
@@ -176,26 +176,68 @@ export const LegalPage = ({ type }) => {
             )}
 
             {/* Direct Contact & Support Details */}
-            <div className="border-t border-slate-200/90 pt-6 sm:pt-8 bg-slate-50/70 -mx-6 sm:-mx-10 lg:-mx-12 -mb-6 sm:-mb-10 lg:-mb-12 p-6 sm:p-10 rounded-b-2xl">
-              <h3 className="text-sm sm:text-base font-bold text-[#142B50] mb-3 flex items-center gap-2">
-                <Mail className="w-4 h-4 text-[#1F70F7]" />
-                <span>Questions or Policy Inquiries?</span>
-              </h3>
-              <p className="text-xs sm:text-sm text-[#475467] leading-relaxed mb-4">
-                If you have questions about our {isPrivacy ? 'Privacy Policy' : 'Terms of Service'}, enrollment requirements, or data practices, our admissions team is here to assist you:
-              </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm text-[#475467]">
-                <div className="flex items-center gap-2.5">
-                  <Mail className="w-4 h-4 text-slate-400" />
-                  <span>Email: <a href="mailto:autoopsschool@gmail.com" className="text-[#1F70F7] hover:underline font-medium">autoopsschool@gmail.com</a></span>
+            <div className="border-t border-slate-200/90 pt-6 sm:pt-8 bg-slate-50/70 -mx-6 sm:-mx-10 lg:-mx-12 -mb-6 sm:-mb-10 lg:-mb-12 p-6 sm:p-10 rounded-b-2xl space-y-4">
+              <div>
+                <h3 className="text-sm sm:text-base font-bold text-[#142B50] flex items-center gap-2">
+                  <Mail className="w-4 h-4 text-[#1F70F7]" />
+                  <span>Questions or Policy Enquiries?</span>
+                </h3>
+                <p className="text-xs sm:text-sm text-[#475467] leading-relaxed mt-1.5">
+                  If you have questions about our {isPrivacy ? 'Privacy Policy' : 'Terms of Service'}, enrollment requirements, or data practices, our admissions team is here to assist you:
+                </p>
+              </div>
+
+              {/* Organized 3-Card Grid for Contact Details */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 pt-1">
+                {/* Email Card */}
+                <div className="bg-white border border-[#E2E8F0] rounded-xl p-3.5 shadow-2xs flex items-start gap-3 transition-colors hover:border-[#BFDBFE]">
+                  <div className="w-8 h-8 rounded-lg bg-[#EBF3FE] text-[#1F70F7] flex items-center justify-center shrink-0 mt-0.5">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                      Email Us
+                    </span>
+                    <a
+                      href="mailto:autoopsschool@gmail.com"
+                      className="text-xs sm:text-[13px] font-bold text-[#1F70F7] hover:underline block truncate mt-0.5"
+                    >
+                      autoopsschool@gmail.com
+                    </a>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2.5">
-                  <Phone className="w-4 h-4 text-slate-400" />
-                  <span>Phone: <a href="tel:+918072066014" className="text-[#1F70F7] hover:underline font-medium">+91 8072066014</a></span>
+
+                {/* Phone Card */}
+                <div className="bg-white border border-[#E2E8F0] rounded-xl p-3.5 shadow-2xs flex items-start gap-3 transition-colors hover:border-[#BFDBFE]">
+                  <div className="w-8 h-8 rounded-lg bg-[#EBF3FE] text-[#1F70F7] flex items-center justify-center shrink-0 mt-0.5">
+                    <Phone className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                      Call
+                    </span>
+                    <a
+                      href="tel:+917483085370"
+                      className="text-xs sm:text-[13px] font-bold text-[#1F70F7] hover:underline block truncate mt-0.5"
+                    >
+                      +91 74830 85370
+                    </a>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2.5 sm:col-span-2">
-                  <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
-                  <span>Location: Bengaluru, Karnataka, India · <a href="https://autoopsschool.in" target="_blank" rel="noreferrer" className="text-[#1F70F7] hover:underline">autoopsschool.in</a></span>
+
+                {/* Location Card */}
+                <div className="bg-white border border-[#E2E8F0] rounded-xl p-3.5 shadow-2xs flex items-start gap-3 transition-colors hover:border-[#BFDBFE] sm:col-span-2 lg:col-span-1">
+                  <div className="w-8 h-8 rounded-lg bg-[#EBF3FE] text-[#1F70F7] flex items-center justify-center shrink-0 mt-0.5">
+                    <MapPin className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block">
+                      Headquarters
+                    </span>
+                    <span className="text-xs sm:text-[13px] font-semibold text-[#142B50] block truncate mt-0.5">
+                      Bengaluru, Karnataka, India
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
