@@ -103,7 +103,7 @@ export const AboutPage = () => (
         'Learning Through Projects'
       ]}
       primaryCta={{ text: 'Discover Our Story', link: '#about-content' }}
-      secondaryCta={{ text: 'Contact Us', link: '/contact' }}
+      secondaryCta={{ text: 'Our Teaching Approach', link: '#training-methodology' }}
     />
 
     <div id="about-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12 scroll-mt-24">
@@ -250,7 +250,7 @@ export const AboutPage = () => (
       </section>
 
       {/* Training Methodology — white panel, numbered pedagogy cards with staggered reveal */}
-      <section className="bg-white rounded-[24px] border border-[#E2E8F0] p-8 sm:p-10 shadow-[0_6px_24px_rgba(20,47,85,0.05)]">
+      <section id="training-methodology" className="bg-white rounded-[24px] border border-[#E2E8F0] p-8 sm:p-10 shadow-[0_6px_24px_rgba(20,47,85,0.05)] scroll-mt-24">
         <AnimatedSection direction="up" delay={50}>
           <span className="text-[11px] sm:text-xs uppercase tracking-[0.18em] font-extrabold text-[#3478F6] block mb-1.5">
             Pedagogy
@@ -318,48 +318,6 @@ export const AboutPage = () => (
 
 import CareerSupportPage from './CareerSupportPage';
 export { CareerSupportPage };
-
-export const LegalPage = ({ type }) => (
-  <div className="bg-[#FAFBFD] min-h-[calc(100vh-5rem)] flex flex-col justify-between text-[#344054]">
-    <div className="flex-1">
-      {/* Compact Hero Section for Legal & Policy Pages */}
-      <div className="relative bg-[#F8FAFD] border-b border-[#E5EDF6] py-5 sm:py-8 lg:py-10 flex items-center overflow-hidden">
-        <HeroBackgroundWaves variant="default" />
-
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 w-full text-center space-y-2 sm:space-y-3 my-auto">
-          {/* Eyebrow Badge */}
-          <div className="inline-flex items-center gap-1.5 bg-[#EBF3FE] border border-[#BFDBFE] text-[#1F70F7] px-3 py-0.5 sm:px-3.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-bold tracking-wide shadow-2xs">
-            <span>Legal & Policy</span>
-          </div>
-
-          {/* Heading */}
-          <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#142B50] tracking-tight leading-tight">
-            {type === 'privacy' ? 'Privacy Policy' : 'Terms and Conditions'}
-          </h1>
-
-          {/* Subtitle */}
-          <p className="text-xs sm:text-sm text-[#475467] leading-relaxed max-w-xl mx-auto font-normal">
-            AutoOps School is committed to transparent education practices and student data privacy.
-          </p>
-        </div>
-      </div>
-
-      {/* Policy Content Section — compact padding for mobile and desktop */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-5 sm:py-8">
-        <AnimatedSection direction="up" delay={50} className="bg-white rounded-2xl border border-gray-200/90 p-5 sm:p-8 lg:p-9 shadow-xs space-y-4 sm:space-y-5">
-          <h2 className="font-bold text-[#102747] text-base sm:text-lg lg:text-xl">
-            AutoOps School {type === 'privacy' ? 'Privacy Policy' : 'Terms of Service'}
-          </h2>
-          <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
-            AutoOps School (Bengaluru, Karnataka, India • https://autoopsschool.in) is committed to protecting your personal data and ensuring a transparent learning experience.
-          </p>
-          <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
-            For inquiries regarding our terms, admissions, or privacy practices, please contact us directly at <a href="mailto:autoopsschool@gmail.com" className="text-[#2B6FE0] underline font-medium">autoopsschool@gmail.com</a> or phone +91 74830 85370.
-          </p>
-        </AnimatedSection>
-      </div>
-    </div>
-  </div>
-);
+export { default as LegalPage } from './LegalPage';
 
 export default AboutPage;

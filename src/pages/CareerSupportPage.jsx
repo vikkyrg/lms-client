@@ -249,8 +249,8 @@ const CareerSupportPage = () => {
           'Resume Guidance',
           'Technical Problem-Solving'
         ]}
-        primaryCta={{ text: 'Explore Career Support', link: '#career-services' }}
-        secondaryCta={{ text: 'Contact Us', link: '/contact' }}
+        primaryCta={{ text: 'Explore Career Services', link: '#career-services' }}
+        secondaryCta={{ text: 'Prepare for Interviews', link: '#interview-prep' }}
       />
 
       {/* Main Container below Hero */}
@@ -410,7 +410,7 @@ const CareerSupportPage = () => {
         {/* ========================================================================= */}
         {/* 5. TECHNICAL INTERVIEW PREPARATION (Interactive Technology Grid)         */}
         {/* ========================================================================= */}
-        <section>
+        <section id="interview-prep" className="scroll-mt-24">
           <AnimatedSection direction="up" delay={50} className="text-center max-w-3xl mx-auto mb-12 sm:mb-14">
             <span className="inline-block bg-[#EAF2FC] text-[#173563] border border-[#D0E2F6] text-xs font-extrabold px-3.5 py-1 rounded-full tracking-wider uppercase mb-3 shadow-2xs">
               HANDS-ON SIMULATION

@@ -108,7 +108,17 @@ export const PageHero = ({
                     )
                   )}
                   {secondaryCta && (
-                    secondaryCta.link?.startsWith('#') ? (
+                    secondaryCta.link?.startsWith('http://') || secondaryCta.link?.startsWith('https://') ? (
+                      <a
+                        href={secondaryCta.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={secondaryCta.onClick}
+                        className="inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-[#142B50] text-xs sm:text-sm font-bold px-5 py-3 rounded-xl border border-slate-300 shadow-2xs hover:shadow-xs transition duration-200 cursor-pointer"
+                      >
+                        <span>{secondaryCta.text}</span>
+                      </a>
+                    ) : secondaryCta.link?.startsWith('#') ? (
                       <a
                         href={secondaryCta.link}
                         onClick={(e) => {

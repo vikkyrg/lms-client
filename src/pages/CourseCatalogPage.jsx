@@ -101,8 +101,8 @@ const CourseCatalogPage = () => {
           'Hands-On Learning',
           'Career-Focused Training'
         ]}
-        primaryCta={{ text: 'Browse All Courses', link: '#courses-grid' }}
-        secondaryCta={{ text: 'View Projects', link: '/projects' }}
+        primaryCta={{ text: 'Find Your Course', link: '#courses-grid' }}
+        secondaryCta={{ text: 'Compare Learning Paths', link: '/projects#roadmap-stages' }}
       />
 
       {/* ========================================================================= */}

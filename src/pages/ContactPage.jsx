@@ -42,7 +42,7 @@ const ContactPage = () => {
           'Personalized Guidance'
         ]}
         primaryCta={{ text: 'Send an Enquiry', link: '#contact-form' }}
-        secondaryCta={{ text: 'Browse Courses', link: '/courses' }}
+        secondaryCta={{ text: 'Chat on WhatsApp', link: 'https://wa.me/917483085370' }}
       />
 
       <div id="contact-form" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 scroll-mt-24">

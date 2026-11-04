@@ -216,8 +216,8 @@ const FaqPage = () => {
           'Learning Support',
           'Career Guidance'
         ]}
-        primaryCta={{ text: 'Find Your Answers', link: '#faq-search-section' }}
-        secondaryCta={{ text: 'Contact Us', link: '/contact' }}
+        primaryCta={{ text: 'Browse FAQs', link: '#faq-search-section' }}
+        secondaryCta={{ text: 'Ask a Question', link: '/contact?subject=Course+Inquiry#contact-form' }}
       />
 
       <div id="faq-search-section" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 scroll-mt-24">
