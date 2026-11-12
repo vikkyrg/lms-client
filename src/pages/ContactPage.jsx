@@ -70,8 +70,8 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider">Email Us</p>
-                    <a href="mailto:autoopsschool@gmail.com" className="text-sm sm:text-base font-bold text-[#102747] hover:text-[#2B6FE0] transition">
-                      autoopsschool@gmail.com
+                    <a href="mailto:admissions@autoopsschool.com" className="text-sm sm:text-base font-bold text-[#102747] hover:text-[#2B6FE0] transition">
+                      admissions@autoopsschool.com
                     </a>
                   </div>
                 </div>

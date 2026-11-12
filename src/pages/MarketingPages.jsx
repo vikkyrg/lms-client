@@ -79,8 +79,8 @@ const companyInfoData = [
   {
     id: 'email',
     label: 'Email',
-    value: 'autoopsschool@gmail.com',
-    href: 'mailto:autoopsschool@gmail.com',
+    value: 'admissions@autoopsschool.com',
+    href: 'mailto:admissions@autoopsschool.com',
     icon: Mail
   },
   { id: 'tagline', label: 'Tagline', value: 'Learn. Build. Automate.', icon: Sparkles }

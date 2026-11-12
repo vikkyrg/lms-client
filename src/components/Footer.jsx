@@ -104,10 +104,10 @@ const Footer = () => {
             <ul className="mt-5 space-y-2.5">
               <ContactRow icon={Mail}>
                 <a
-                  href="mailto:autoopsschool@gmail.com"
+                  href="mailto:admissions@autoopsschool.com"
                   className="transition-colors duration-200 hover:text-[#F5CE62]"
                 >
-                  autoopsschool@gmail.com
+                  admissions@autoopsschool.com
                 </a>
               </ContactRow>
               <ContactRow icon={Phone}>

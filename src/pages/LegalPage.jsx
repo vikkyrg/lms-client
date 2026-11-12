@@ -199,10 +199,10 @@ export const LegalPage = ({ type }) => {
                       Email Us
                     </span>
                     <a
-                      href="mailto:autoopsschool@gmail.com"
+                      href="mailto:admissions@autoopsschool.com"
                       className="text-xs sm:text-[13px] font-bold text-[#1F70F7] hover:underline block truncate mt-0.5"
                     >
-                      autoopsschool@gmail.com
+                      admissions@autoopsschool.com
                     </a>
                   </div>
                 </div>
