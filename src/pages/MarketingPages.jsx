@@ -71,8 +71,8 @@ const companyInfoData = [
   {
     id: 'website',
     label: 'Website',
-    value: 'https://autoopsschool.in',
-    href: 'https://autoopsschool.in',
+    value: 'https://autoopsschool.com',
+    href: 'https://autoopsschool.com',
     external: true,
     icon: Globe
   },

@@ -118,12 +118,12 @@ const Footer = () => {
               <ContactRow icon={MapPin}>Bengaluru, Karnataka, India</ContactRow>
               <ContactRow icon={Globe}>
                 <a
-                  href="https://autoopsschool.in"
+                  href="https://autoopsschool.com"
                   target="_blank"
                   rel="noreferrer"
                   className="transition-colors duration-200 hover:text-[#F5CE62]"
                 >
-                  autoopsschool.in
+                  autoopsschool.com
                 </a>
               </ContactRow>
             </ul>
