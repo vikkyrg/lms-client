@@ -42,6 +42,104 @@ body {
   animation: heroFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+@keyframes websitePopupEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.website-popup-card {
+  animation: websitePopupEnter 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.website-popup-image-corner {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 120px;
+  height: 105px;
+  background: rgba(37, 99, 235, 0.78);
+  clip-path: polygon(0 0, 100% 0, 87% 16%, 70% 30%, 48% 43%, 22% 66%, 0 100%);
+  pointer-events: none;
+}
+
+.website-popup-content {
+  isolation: isolate;
+}
+
+.website-popup-heading {
+  overflow-wrap: anywhere;
+}
+
+.website-popup-heading-line,
+.website-popup-heading-highlight {
+  display: block;
+}
+
+.website-popup-heading-highlight {
+  color: #2672f5;
+}
+
+.website-popup-heading-strokes {
+  position: absolute;
+  top: -18px;
+  right: 18%;
+  width: 34px;
+  height: 34px;
+  color: #60a5fa;
+  pointer-events: none;
+}
+
+.website-popup-decoration {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.website-popup-decoration-dots {
+  right: 14px;
+  bottom: 17px;
+  width: 64px;
+  height: 58px;
+  background-image: radial-gradient(circle, #9eb8e6 1.6px, transparent 1.8px);
+  background-size: 13px 13px;
+  opacity: 0.8;
+}
+
+.website-popup-decoration-curve {
+  right: -112px;
+  bottom: 0;
+  width: 320px;
+  height: 140px;
+  border-radius: 72% 0 0;
+  background: #eff6ff;
+}
+
+.website-popup-paper-plane {
+  position: absolute;
+  z-index: 1;
+  top: 48%;
+  right: 14px;
+  width: 49px;
+  height: 49px;
+  color: #254f9c;
+  opacity: 0.9;
+  transform: rotate(7deg);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .website-popup-card {
+    animation: none;
+  }
+}
+
 /* Scroll reveal card state classes */
 .card-scroll-hidden {
   opacity: 0;

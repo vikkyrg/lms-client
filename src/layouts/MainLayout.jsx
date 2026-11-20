@@ -2,6 +2,7 @@ import React from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import WebsitePopupModal from '../components/WebsitePopupModal';
 
 const MainLayout = () => {
   const location = useLocation();
@@ -14,6 +15,7 @@ const MainLayout = () => {
         <Outlet />
       </main>
       <Footer />
+      <WebsitePopupModal />
     </div>
   );
 };
